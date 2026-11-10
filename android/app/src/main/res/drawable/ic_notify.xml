@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- status bar icon: the JT monogram in white, Android tints it -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="100" android:viewportHeight="100">
+    <group android:pivotX="47.5" android:pivotY="49" android:scaleX="1.15" android:scaleY="1.15"
+        android:translateX="2.5" android:translateY="1">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M29,22h42a7,7 0 0 1 0,14h-42a7,7 0 0 1 0,-14z" />
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="14"
+            android:strokeLineCap="round" android:pathData="M50,30v30a14,14 0 0 1 -28,0" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M64,68a8,8 0 1 0 16,0a8,8 0 1 0 -16,0z" />
+    </group>
+</vector>

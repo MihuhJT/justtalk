@@ -1,0 +1,44 @@
+# secrets and live data
+*.db
+*.db.*
+admin_token.txt
+invite.txt
+server/media/
+backups/
+*.log
+# builds and binaries
+.venv
+__pycache__/
+*.app/
+*.apk
+*.zip
+*.mp4
+apk/
+server/app/
+mac/icon.png
+*.bak
+.DS_Store
+Icon?
+
+# optional local LM Studio configuration (may contain an API key)
+server/bot_config.json
+
+# Local settings, credentials and generated output
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+local.properties
+**/xcuserdata/
+**/node_modules/
+**/dist/
+**/build/
+**/.gradle/
+**/.kotlin/
+
+# Runtime owner identifier
+server/owner.txt

@@ -1,0 +1,278 @@
+// !$*UTF8*$!
+{
+"classes" = {
+};
+"objectVersion" = "56";
+"archiveVersion" = "1";
+"objects" = {
+"0000000000000000000000CF" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006B";
+};
+"00000000000000000000006D" = {
+"path" = "StoreMore.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"000000000000000000000006" = {
+"isa" = "PBXSourcesBuildPhase";
+"buildActionMask" = "2147483647";
+"files" = ("0000000000000000000000C8","0000000000000000000000C9","0000000000000000000000CA","0000000000000000000000CB","0000000000000000000000CC","0000000000000000000000CD","0000000000000000000000CE","0000000000000000000000CF","0000000000000000000000D0","0000000000000000000000D1","0000000000000000000000D2","0000000000000000000000D3");
+"runOnlyForDeploymentPostprocessing" = "0";
+};
+"000000000000000000000068" = {
+"path" = "People.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000D1" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006D";
+};
+"00000000000000000000000A" = {
+"isa" = "XCConfigurationList";
+"defaultConfigurationIsVisible" = "0";
+"defaultConfigurationName" = "Release";
+"buildConfigurations" = ("00000000000000000000000C","00000000000000000000000D");
+};
+"0000000000000000000000CE" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006A";
+};
+"00000000000000000000006C" = {
+"path" = "Store.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000C9" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000065";
+};
+"000000000000000000000067" = {
+"path" = "Net.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"000000000000000000000005" = {
+"path" = "JustTalk.app";
+"isa" = "PBXFileReference";
+"explicitFileType" = "wrapper.application";
+"sourceTree" = "BUILT_PRODUCTS_DIR";
+};
+"0000000000000000000000D0" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006C";
+};
+"00000000000000000000000F" = {
+"isa" = "XCBuildConfiguration";
+"buildSettings" = {
+"PRODUCT_NAME" = "$(TARGET_NAME)";
+"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+"MARKETING_VERSION" = "0.16.2";
+"INFOPLIST_FILE" = "Info.plist";
+"CODE_SIGN_STYLE" = "Automatic";
+"PRODUCT_BUNDLE_IDENTIFIER" = "com.fayor.justtalk.ios";
+"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+"TARGETED_DEVICE_FAMILY" = "1,2";
+"DEVELOPMENT_TEAM" = "";
+"CURRENT_PROJECT_VERSION" = "16";
+"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+};
+"name" = "Release";
+};
+"000000000000000000000004" = {
+"buildConfigurationList" = "00000000000000000000000B";
+"productReference" = "000000000000000000000005";
+"productType" = "com.apple.product-type.application";
+"productName" = "JustTalk";
+"isa" = "PBXNativeTarget";
+"buildPhases" = ("000000000000000000000006","000000000000000000000007","000000000000000000000008");
+"dependencies" = ();
+"name" = "JustTalk";
+"buildRules" = ();
+};
+"00000000000000000000006B" = {
+"path" = "Spots.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000CD" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000069";
+};
+"000000000000000000000066" = {
+"path" = "Cards.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000C8" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000064";
+};
+"00000000000000000000000E" = {
+"isa" = "XCBuildConfiguration";
+"buildSettings" = {
+"PRODUCT_NAME" = "$(TARGET_NAME)";
+"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+"MARKETING_VERSION" = "0.16.2";
+"INFOPLIST_FILE" = "Info.plist";
+"CODE_SIGN_STYLE" = "Automatic";
+"PRODUCT_BUNDLE_IDENTIFIER" = "com.fayor.justtalk.ios";
+"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+"TARGETED_DEVICE_FAMILY" = "1,2";
+"DEVELOPMENT_TEAM" = "";
+"CURRENT_PROJECT_VERSION" = "16";
+"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+};
+"name" = "Debug";
+};
+"000000000000000000000003" = {
+"isa" = "PBXGroup";
+"name" = "Products";
+"children" = ("000000000000000000000005");
+"sourceTree" = "<group>";
+};
+"00000000000000000000006A" = {
+"path" = "Record.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000CC" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000068";
+};
+"000000000000000000000065" = {
+"path" = "Calls.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000D4" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000070";
+};
+"00000000000000000000000D" = {
+"isa" = "XCBuildConfiguration";
+"buildSettings" = {
+"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+"SWIFT_VERSION" = "5.0";
+"CLANG_ENABLE_MODULES" = "YES";
+"SDKROOT" = "iphoneos";
+};
+"name" = "Release";
+};
+"000000000000000000000008" = {
+"isa" = "PBXResourcesBuildPhase";
+"buildActionMask" = "2147483647";
+"files" = ("0000000000000000000000D4","AA0000000000000000000002");
+"runOnlyForDeploymentPostprocessing" = "0";
+};
+"00000000000000000000006F" = {
+"path" = "Watch.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"000000000000000000000002" = {
+"isa" = "PBXGroup";
+"sourceTree" = "<group>";
+"children" = ("000000000000000000000064","000000000000000000000065","000000000000000000000066","000000000000000000000067","000000000000000000000068","000000000000000000000069","00000000000000000000006A","00000000000000000000006B","00000000000000000000006C","00000000000000000000006D","00000000000000000000006E","00000000000000000000006F","000000000000000000000070","000000000000000000000003","AA0000000000000000000001");
+};
+"0000000000000000000000CB" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000067";
+};
+"000000000000000000000064" = {
+"path" = "Bot.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000D3" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006F";
+};
+"00000000000000000000000C" = {
+"isa" = "XCBuildConfiguration";
+"buildSettings" = {
+"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+"SWIFT_VERSION" = "5.0";
+"CLANG_ENABLE_MODULES" = "YES";
+"SDKROOT" = "iphoneos";
+};
+"name" = "Debug";
+};
+"000000000000000000000007" = {
+"isa" = "PBXFrameworksBuildPhase";
+"buildActionMask" = "2147483647";
+"files" = ();
+"runOnlyForDeploymentPostprocessing" = "0";
+};
+"00000000000000000000006E" = {
+"path" = "Views.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"000000000000000000000001" = {
+"buildConfigurationList" = "00000000000000000000000A";
+"targets" = ("000000000000000000000004");
+"developmentRegion" = "ru";
+"knownRegions" = ("ru","en","Base");
+"isa" = "PBXProject";
+"compatibilityVersion" = "Xcode 14.0";
+"productRefGroup" = "000000000000000000000003";
+"projectDirPath" = "";
+"attributes" = {
+"LastUpgradeCheck" = "2700";
+};
+"hasScannedForEncodings" = "0";
+"projectRoot" = "";
+"mainGroup" = "000000000000000000000002";
+};
+"0000000000000000000000CA" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "000000000000000000000066";
+};
+"000000000000000000000069" = {
+"path" = "Phone.swift";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "sourcecode.swift";
+"sourceTree" = "<group>";
+};
+"0000000000000000000000D2" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "00000000000000000000006E";
+};
+"000000000000000000000070" = {
+"path" = "Onest.ttf";
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "file";
+"sourceTree" = "<group>";
+};
+"00000000000000000000000B" = {
+"isa" = "XCConfigurationList";
+"defaultConfigurationIsVisible" = "0";
+"defaultConfigurationName" = "Release";
+"buildConfigurations" = ("00000000000000000000000E","00000000000000000000000F");
+};
+"AA0000000000000000000001" = {
+"isa" = "PBXFileReference";
+"lastKnownFileType" = "folder.assetcatalog";
+"path" = "Assets.xcassets";
+"sourceTree" = "<group>";
+};
+"AA0000000000000000000002" = {
+"isa" = "PBXBuildFile";
+"fileRef" = "AA0000000000000000000001";
+};
+};
+"rootObject" = "000000000000000000000001";
+}

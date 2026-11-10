@@ -1,0 +1,58 @@
+{
+  "name": "justtalk",
+  "productName": "JustTalk",
+  "version": "0.15.1",
+  "description": "JustTalk для Windows",
+  "author": "JT",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.fayor.justtalk.win",
+    "productName": "JustTalk",
+    "files": [
+      "main.js",
+      "preload.js",
+      "webview-preload.js",
+      "app/**",
+      "node_modules/leaflet/dist/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "signAndEditExecutable": false
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "afterPack": "build/afterPack.js",
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "JustTalk-Setup-${version}.exe",
+      "shortcutName": "JustTalk",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^2.1.8",
+    "resedit": "^2.0.3"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  }
+}

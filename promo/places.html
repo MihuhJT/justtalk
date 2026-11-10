@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>JustTalk places promo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* 1080x1920 vertical promo about the places map; same look as promo.html, every frame is drawn by renderAt(t) */
+:root {
+  --bg: #07070a;
+  --s1: #141418;
+  --s2: #1f1f24;
+  --ink: #f4f4f7;
+  --mut: #8d8d97;
+  --acc: #7366f0;
+  --acc2: #9d93ff;
+  --ok: #34c46a;
+  --spot: #7366f0;
+  --park: #34c46a;
+  --party: #ff5c9d;
+  --cafe: #f2a33a;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: "Onest", system-ui, sans-serif; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+.abs { position: absolute; }
+.glow { position: absolute; border-radius: 50%; filter: blur(120px); }
+.grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at 50% 40%, #000 30%, transparent 75%); }
+.bars { position: absolute; left: 60px; right: 60px; top: 64px; display: flex; gap: 10px; }
+.bars span { flex: 1; height: 7px; border-radius: 4px; background: rgba(255,255,255,.14); overflow: hidden; }
+.bars i { display: block; height: 100%; background: #fff; width: 0; }
+.hl { position: absolute; left: 70px; top: 150px; width: 940px; font-size: 108px; line-height: 1.02; font-weight: 800; letter-spacing: -0.035em; }
+.hl .w { display: inline-block; margin-right: .22em; }
+.hl .a { color: var(--acc2); }
+.sub { position: absolute; left: 72px; font-size: 40px; color: var(--mut); font-weight: 500; }
+.chip { position: absolute; display: flex; align-items: center; gap: 18px; padding: 20px 30px 20px 20px; border-radius: 999px; background: rgba(28,28,34,.82); border: 1.5px solid rgba(255,255,255,.1); font-size: 36px; font-weight: 600; white-space: nowrap; box-shadow: 0 20px 50px rgba(0,0,0,.45); backdrop-filter: blur(20px); }
+.chip .ic { width: 62px; height: 62px; border-radius: 50%; background: var(--acc); display: grid; place-items: center; color: #fff; flex: none; }
+.chip .ic svg { width: 32px; height: 32px; }
+.stat { position: absolute; padding: 26px 34px; border-radius: 40px; background: rgba(24,24,30,.9); border: 1.5px solid rgba(255,255,255,.1); box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+.stat b { display: block; font-size: 96px; line-height: 1; font-weight: 800; color: var(--acc2); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 30px; color: var(--mut); font-weight: 500; }
+
+/* phone */
+#phone { position: absolute; left: 276px; top: 560px; width: 528px; height: 1092px; }
+.ph-frame { position: absolute; inset: 0; border-radius: 84px; background: #050506; box-shadow: 0 0 0 3px #2b2b31, 0 60px 120px rgba(0,0,0,.6), 0 0 160px rgba(115,102,240,.18); }
+.ph-screen { position: absolute; left: 0; top: 0; width: 340px; height: 704px; transform-origin: 0 0; transform: translate(16px, 16px) scale(1.4588); border-radius: 46px; overflow: hidden; background: #000; font-size: 14px; }
+.scr { position: absolute; inset: 0; padding: 58px 18px 0; display: flex; flex-direction: column; gap: 12px; background: #000; }
+.island { position: absolute; left: 50%; top: 10px; width: 92px; height: 26px; margin-left: -46px; background: #000; border-radius: 20px; z-index: 30; box-shadow: 0 0 0 1px #111; }
+.row { display: flex; align-items: center; gap: 10px; }
+.between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mut { color: var(--mut); }
+.ava { border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--s2); box-shadow: 0 0 0 2px #000, 0 0 0 3.5px var(--acc); position: relative; flex: none; color: #fff; }
+.stack { display: flex; }
+.stack .ava { width: 26px; height: 26px; font-size: 11px; margin-left: -6px; }
+.stack .ava:first-child { margin-left: 0; }
+.chipm { padding: 5px 10px; border-radius: 99px; background: var(--s1); color: var(--mut); font-size: 11.5px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.chipm.on { background: var(--acc); color: #fff; }
+.chipm svg { width: 12px; height: 12px; }
+.tabs { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); height: 60px; border-radius: 30px; background: rgba(28,28,32,.75); border: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; gap: 4px; padding: 0 6px; backdrop-filter: blur(20px); z-index: 5; }
+.tab { width: 52px; height: 48px; border-radius: 24px; display: grid; place-items: center; color: var(--ink); }
+.tab svg { width: 21px; height: 21px; }
+.tab.on { width: 48px; background: var(--acc); }
+.msg { max-width: 80%; padding: 8px 12px; border-radius: 18px; line-height: 1.35; font-size: 14px; }
+.msg.them { align-self: flex-start; background: var(--s1); border-bottom-left-radius: 5px; }
+.msg.me { align-self: flex-end; background: var(--s2); border-bottom-right-radius: 5px; }
+.msg .who { display: block; font-size: 11px; font-weight: 700; color: var(--acc2); margin-bottom: 1px; }
+.btn { padding: 8px 14px; border-radius: 99px; background: var(--acc); color: #fff; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 5px; }
+.btn.ghost { background: var(--s2); color: var(--ink); }
+.pin { position: absolute; width: 32px; height: 32px; margin: -32px 0 0 -16px; border-radius: 50% 50% 50% 4px; color: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,.5); }
+.pin svg { width: 16px; height: 16px; }
+.pin.sel { width: 44px; height: 44px; margin: -44px 0 0 -22px; }
+.pin.sel svg { width: 22px; height: 22px; }
+.lbl { font-size: 11px; color: var(--mut); margin-bottom: -6px; }
+.field { background: var(--s1); border-radius: 14px; padding: 11px 14px; font-size: 15px; min-height: 42px; }
+.logo { width: 260px; height: 260px; border-radius: 74px; background: linear-gradient(140deg, #8f84ff, #5a4be0 60%, #3d30b8); display: grid; place-items: center; font-size: 124px; font-weight: 900; letter-spacing: -0.06em; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 40px 100px rgba(115,102,240,.45); }
+#tap { position: absolute; width: 36px; height: 36px; margin: -18px; border-radius: 50%; background: rgba(255,255,255,.3); border: 2px solid rgba(255,255,255,.85); z-index: 50; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" id="g1" style="width:900px;height:900px;background:#5b4ee6"></div>
+  <div class="glow" id="g2" style="width:700px;height:700px;background:#ff5c9d"></div>
+  <div class="grid"></div>
+  <div class="bars" id="bars"></div>
+
+  <!-- S1 intro -->
+  <div class="abs" id="s1logoWrap" style="left:410px;top:520px;width:260px;height:260px">
+    <div class="abs" id="s1ring" style="inset:-26px;border-radius:96px"></div>
+    <div class="logo abs" style="left:0;top:0">JT</div>
+  </div>
+  <div class="abs" id="s1name" style="left:0;right:0;top:850px;text-align:center;font-size:170px;font-weight:900;letter-spacing:-0.05em"></div>
+  <div class="abs" id="s1tag" style="left:0;right:0;top:1060px;text-align:center;font-size:52px;color:var(--mut);font-weight:500">новая главная фишка</div>
+  <div class="abs" id="s1chip" style="left:0;right:0;top:1190px;display:flex;justify-content:center">
+    <span class="chip" style="position:static;background:var(--acc);border-color:transparent"><span class="ic" style="background:rgba(255,255,255,.2)" data-ic="pin"></span>Карта мест</span></div>
+
+  <!-- headlines -->
+  <div class="hl" id="hl2"><span class="w">Не</span><span class="w">только</span><br><span class="w a">для</span><span class="w a">BMX</span></div>
+  <div class="sub" id="sub2" style="top:390px">споты, парки, тусовки, кафе</div>
+  <div class="hl" id="hl3"><span class="w">Найди,</span><br><span class="w a">где</span><span class="w a">движ</span></div>
+  <div class="hl" id="hl4"><span class="w">Видно,</span><span class="w">кто</span><br><span class="w a">уже</span><span class="w a">там</span></div>
+  <div class="hl" id="hl5"><span class="w">Добавь</span><br><span class="w a">своё</span><span class="w a">место</span></div>
+  <div class="hl" id="hl6"><span class="w">Собери</span><br><span class="w a">всех</span><span class="w">за</span><span class="w">минуту</span></div>
+
+  <!-- phone -->
+  <div id="phone">
+    <div class="ph-frame"></div>
+    <div class="ph-screen" id="phs">
+      <div class="island"></div>
+
+      <!-- map -->
+      <div class="scr" id="scMap" style="padding:0">
+        <svg class="abs" viewBox="0 0 340 704" style="inset:0;width:100%;height:100%;background:#131316">
+          <rect x="18" y="130" width="110" height="80" rx="18" fill="#17261b"/>
+          <rect x="215" y="335" width="115" height="95" rx="18" fill="#17261b"/>
+          <rect x="240" y="525" width="95" height="85" rx="18" fill="#17261b"/>
+          <path d="M-20 300 C 90 255, 190 330, 360 262" stroke="#142038" stroke-width="34" fill="none"/>
+          <path d="M-10 120 L 350 200 M 40 -10 L 120 720 M 190 -10 L 240 720 M -10 400 L 350 350 M -10 480 L 350 530" stroke="#202024" stroke-width="15" fill="none" stroke-linecap="round"/>
+          <path d="M 300 -10 L 310 720 M -10 650 L 350 610" stroke="#1c1c20" stroke-width="7" fill="none"/>
+          <path d="M214 262 L 232 318" stroke="#33333b" stroke-width="12" stroke-linecap="round"/>
+        </svg>
+        <div id="pins"></div>
+        <div class="abs" id="here" style="left:220px;top:178px;display:flex"></div>
+        <div class="abs" id="meDot" style="left:150px;top:600px;width:16px;height:16px;margin:-8px;border-radius:50%;background:#4d7cff;box-shadow:0 0 0 2px #fff inset"></div>
+        <div class="abs" style="left:16px;right:16px;top:54px;height:40px;border-radius:12px;background:rgba(28,28,32,.8);display:flex;align-items:center;padding:0 14px;color:var(--mut);font-size:14px;gap:8px"><span style="width:16px;height:16px" data-ic="search"></span>Найти место</div>
+        <div class="abs row" id="filters" style="left:16px;right:0;top:102px;gap:5px"></div>
+        <div class="abs" id="sheet" style="left:12px;right:12px;bottom:96px;border-radius:24px;background:#000;padding:10px;box-shadow:0 -10px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:8px;z-index:4">
+          <div style="height:78px;border-radius:16px;background:linear-gradient(180deg,#2b2350 0%,#7a4bd0 48%,#f08a5d 72%,#14203a 73%,#0f1828 100%);position:relative;overflow:hidden">
+            <span class="chipm on" style="position:absolute;left:8px;top:8px;background:var(--party)"><span data-ic="party"></span>Тусовка</span></div>
+          <div class="between"><b style="font-size:16px">Набережная у моста</b><span class="mut" style="font-size:11px">800 м</span></div>
+          <div class="row" style="gap:8px"><div class="stack" id="sheetStack"></div><span id="hereTxt" style="font-size:12.5px">3 кента сейчас тут</span></div>
+          <div class="row" style="gap:6px"><span class="btn" id="imHere"><span id="imHereTxt">Я тут</span></span><span class="btn ghost">Маршрут</span><span class="btn ghost">В чат</span></div>
+        </div>
+        <div class="tabs" data-tabs="1"></div>
+      </div>
+
+      <!-- new place -->
+      <div class="scr" id="scAdd" style="gap:11px">
+        <div class="between"><span style="width:20px;height:20px" data-ic="back"></span><b>Новое место</b><span style="width:20px"></span></div>
+        <div id="photoBox" style="height:112px;border-radius:18px;border:1.5px dashed rgba(255,255,255,.18);background:var(--s1);position:relative;overflow:hidden;display:grid;place-items:center">
+          <div class="mut" style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px"><span style="width:26px;height:26px" data-ic="cam"></span>Добавить фото</div>
+          <div id="photoImg" class="abs" style="inset:0;background:linear-gradient(180deg,#2b2350 0%,#7a4bd0 46%,#f08a5d 70%,#14203a 71%,#0f1828 100%)">
+            <svg viewBox="0 0 300 112" class="abs" style="inset:0;width:100%;height:100%" preserveAspectRatio="none"><path d="M0 80 Q 150 40 300 80" stroke="#0b0f1c" stroke-width="5" fill="none"/><path d="M40 80V70M100 80V58M150 80V53M200 80V58M260 80V70" stroke="#0b0f1c" stroke-width="4"/></svg>
+          </div>
+        </div>
+        <span class="lbl">Название</span>
+        <div class="field" id="nameField"><span id="nameTxt"></span><span id="caret" style="color:var(--acc2)">|</span></div>
+        <span class="lbl">Что за место</span>
+        <div class="row" id="cats" style="gap:5px;flex-wrap:wrap"></div>
+        <span class="lbl">Кто видит</span>
+        <div class="row" style="gap:0;background:var(--s1);border-radius:99px;padding:3px">
+          <span class="chipm on" style="flex:1;justify-content:center;padding:7px">Все кенты</span><span class="chipm" style="flex:1;justify-content:center;padding:7px">Только я</span></div>
+        <div style="height:70px;border-radius:16px;overflow:hidden;position:relative;background:#131316">
+          <svg viewBox="0 0 300 70" class="abs" style="inset:0;width:100%;height:100%" preserveAspectRatio="none"><path d="M-10 40 C 80 20, 180 60, 310 30" stroke="#142038" stroke-width="16" fill="none"/><path d="M60 -5 L 80 80 M 220 -5 L 230 80" stroke="#202024" stroke-width="8"/></svg>
+          <span class="pin" id="newPin" style="left:150px;top:40px;background:var(--party)" data-ic="party"></span>
+        </div>
+        <div class="btn" id="addBtn" style="justify-content:center;padding:13px;font-size:15px;border-radius:16px">Добавить место</div>
+        <div class="abs" id="toast" style="left:50%;top:60px;transform:translateX(-50%);padding:9px 16px;border-radius:99px;background:var(--ok);color:#04150a;font-weight:700;font-size:13px;white-space:nowrap;z-index:20">Место на карте — видят кенты</div>
+      </div>
+
+      <!-- group chat -->
+      <div class="scr" id="scChat" style="gap:6px">
+        <div class="row" style="padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);gap:10px">
+          <span style="width:20px;height:20px" data-ic="back"></span>
+          <div class="ava" style="width:38px;height:38px;font-size:15px">К</div>
+          <div style="display:flex;flex-direction:column;line-height:1.2"><b style="font-size:15px">Кенты</b><span id="chatStatus" style="font-size:11px;color:var(--mut)">Рома, Дэн, Макс, Лёха</span></div>
+        </div>
+        <div id="feed" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding-bottom:84px">
+          <div class="msg them" id="m0"><span class="who">Рома</span>Куда сегодня?</div>
+          <div class="msg me" id="m1" style="padding:6px;width:236px">
+            <div style="height:64px;border-radius:13px;background:#131316;position:relative;overflow:hidden">
+              <svg viewBox="0 0 224 64" class="abs" style="inset:0;width:100%;height:100%" preserveAspectRatio="none"><path d="M-10 36 C 60 18, 140 54, 234 26" stroke="#142038" stroke-width="14" fill="none"/><path d="M50 -5 L 64 70 M 170 -5 L 178 70" stroke="#26262c" stroke-width="7"/></svg>
+              <span class="pin" style="left:112px;top:44px;width:26px;height:26px;margin:-26px 0 0 -13px;background:var(--party);transform:rotate(-45deg)"><span style="display:grid;transform:rotate(45deg)" data-ic="party"></span></span>
+            </div>
+            <div style="padding:7px 6px 4px;display:flex;flex-direction:column;gap:3px">
+              <b style="font-size:14.5px">Набережная у моста</b>
+              <span class="mut" style="font-size:11.5px">Тусовка · сбор сегодня в 19:00</span>
+              <div class="between" style="margin-top:5px"><div class="row" style="gap:7px"><div class="stack" id="goStack"></div><span id="goTxt" style="font-size:12px" class="mut"></span></div><span class="btn" style="padding:6px 12px">Иду ✓</span></div>
+            </div>
+          </div>
+          <div class="msg them" id="m2"><span class="who">Дэн</span>Беру колонку, будет музло</div>
+        </div>
+        <div class="abs" style="left:16px;right:16px;bottom:26px;height:46px;border-radius:23px;background:var(--s1);display:flex;align-items:center;padding:0 8px 0 16px;color:var(--mut)">
+          <span style="flex:1">Сообщение</span><span style="width:32px;height:32px;border-radius:50%;background:var(--acc);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span></div>
+      </div>
+
+      <div id="tap"></div>
+    </div>
+  </div>
+
+  <!-- callouts -->
+  <div class="chip" id="c2a" style="left:30px;top:840px"><span class="ic" style="background:var(--spot)" data-ic="spot"></span>Споты</div>
+  <div class="chip" id="c2b" style="left:660px;top:1040px"><span class="ic" style="background:var(--park)" data-ic="park"></span>Парки</div>
+  <div class="chip" id="c2c" style="left:30px;top:1280px"><span class="ic" style="background:var(--party)" data-ic="party"></span>Тусовки</div>
+  <div class="chip" id="c2d" style="left:700px;top:1500px"><span class="ic" style="background:var(--cafe)" data-ic="cafe"></span>Кафе</div>
+  <div class="stat" id="st3" style="left:30px;top:1180px"><b>1 тап</b><span>и на карте<br>только нужное</span></div>
+  <div class="chip" id="c4" style="left:24px;top:860px"><span class="ic" data-ic="user"></span>Отметься: «Я тут»</div>
+  <div class="stat" id="st4" style="left:700px;top:560px"><b id="st4n">3</b><span>кента<br>уже на месте</span></div>
+  <div class="chip" id="c5a" style="left:24px;top:740px"><span class="ic" data-ic="cam"></span>Фото места</div>
+  <div class="chip" id="c5b" style="left:520px;top:1440px"><span class="ic" data-ic="lock"></span>Видят только кенты</div>
+  <div class="chip" id="c6a" style="left:24px;top:900px"><span class="ic" data-ic="chat"></span>Место прямо в чате</div>
+  <div class="stat" id="st6" style="left:700px;top:780px"><b id="st6n">1</b><span>идут<br>на сбор</span></div>
+
+  <!-- S7 outro -->
+  <div class="abs" id="s7logoWrap" style="left:410px;top:470px;width:260px;height:260px">
+    <div class="logo abs" style="left:0;top:0">JT</div>
+    <div class="abs" id="s7oct" style="left:190px;top:-80px;width:120px;height:100px" data-octo></div>
+  </div>
+  <div class="abs" id="s7name" style="left:0;right:0;top:800px;text-align:center;font-size:150px;font-weight:900;letter-spacing:-0.05em">Карта мест</div>
+  <div class="abs" id="s7tag" style="left:0;right:0;top:990px;text-align:center;font-size:52px;font-weight:600;color:var(--mut)">главная фишка <span style="color:var(--ink)">JustTalk 1.0</span></div>
+  <div class="abs" id="s7chips" style="left:0;right:0;top:1110px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;padding:0 40px"></div>
+
+  <!-- S8 disclaimer -->
+  <div class="abs" id="s8hl" style="left:70px;right:70px;top:600px;font-size:118px;line-height:1.02;font-weight:800;letter-spacing:-0.035em">Это ещё<br><span style="color:var(--acc2)">не финал</span></div>
+  <div class="abs" id="s8card" style="left:70px;right:70px;top:900px;border-radius:44px;padding:44px;border:3px dashed var(--acc);background:rgba(115,102,240,.08);display:flex;gap:34px;align-items:flex-start">
+    <div style="width:110px;height:110px;border-radius:32px;background:var(--acc);display:grid;place-items:center;font-size:66px;font-weight:900;flex:none">!</div>
+    <div style="font-size:44px;line-height:1.3;font-weight:600">Так это может выглядеть, но дизайн ещё поменяется.<br><span style="color:var(--mut)">Показаны не все функции.</span></div>
+  </div>
+  <div class="abs" id="s8brand" style="left:0;right:0;top:1480px;display:flex;justify-content:center;align-items:center;gap:24px">
+    <div class="logo" style="width:110px;height:110px;border-radius:32px;font-size:52px">JT</div><b style="font-size:64px;font-weight:900;letter-spacing:-0.04em">JustTalk</b></div>
+</div>
+
+<script>
+/* ---------- assets ---------- */
+const S = 'fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
+const ICON = {
+  chat: `<svg viewBox="0 0 24 24" ${S}><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4A8 8 0 1 1 20 11.5z"/></svg>`,
+  pin: `<svg viewBox="0 0 24 24" ${S}><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>`,
+  music: `<svg viewBox="0 0 24 24" ${S}><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`,
+  user: `<svg viewBox="0 0 24 24" ${S}><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`,
+  spot: `<svg viewBox="0 0 24 24" ${S}><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5L9.5 9h6l3 7.5M9.5 9L8.5 6H6.5M15.5 9l1-3h2"/></svg>`,
+  park: `<svg viewBox="0 0 24 24" ${S}><path d="M12 22v-5"/><path d="M12 2.5l6 8h-3l4 6.5H5l4-6.5H6z"/></svg>`,
+  party: `<svg viewBox="0 0 24 24" ${S}><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`,
+  cafe: `<svg viewBox="0 0 24 24" ${S}><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg>`,
+  cam: `<svg viewBox="0 0 24 24" ${S}><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" ${S}><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" ${S}><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>`,
+  back: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`,
+};
+const CAT = { spot: ["Споты", "Спот", "var(--spot)"], park: ["Парки", "Парк", "var(--park)"], party: ["Тусовки", "Тусовка", "var(--party)"], cafe: ["Кафе", "Кафе", "var(--cafe)"] };
+const OCTO = (() => {
+  const rows = ["....XXXX....", "..XXXXXXXX..", ".XXXXXXXXXX.", ".XXWEXXWEXX.", ".XXEEXXEEXX.", ".XCXXXXXXCX.", "XXXXXXXXXXXX", "DD.DD..DD.DD", "D..D....D..D"];
+  const col = { X: "#ff8ec4", D: "#e8649f", E: "#1b1420", W: "#ffffff", C: "#ff5c9d" };
+  let r = "";
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (col[c]) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${col[c]}"/>`; }));
+  return `<svg viewBox="-1 -1.5 14 12" shape-rendering="crispEdges" style="width:100%;height:100%">${r}</svg>`;
+})();
+
+const $ = id => document.getElementById(id);
+const ava = (l, extra = "") => `<div class="ava" ${extra}>${l}</div>`;
+
+/* ---------- build dynamic bits ---------- */
+$("s1name").innerHTML = [..."JustTalk"].map(c => `<span style="display:inline-block">${c}</span>`).join("");
+// scene borders: intro, not only bmx, filters, who's there, add, gather, outro, disclaimer
+const SCENES = [0, 3.0, 7.4, 11.8, 16.4, 21.4, 25.4, 28.8, 33];
+const DURATION = SCENES[SCENES.length - 1];
+$("bars").innerHTML = SCENES.slice(0, -1).map(() => "<span><i></i></span>").join("");
+
+const PINS = [[205, 255, "party", 1], [70, 250, "spot"], [265, 380, "park"], [110, 430, "cafe"], [245, 470, "spot"], [290, 170, "cafe"], [65, 175, "park"], [160, 545, "party"], [290, 570, "park"], [125, 330, "party"], [40, 360, "spot"]];
+$("pins").innerHTML = PINS.map(([x, y, c, s], i) => `<span class="pin ${s ? "sel" : ""}" id="pin${i}" style="left:${x}px;top:${y}px;background:${CAT[c][2]}">${ICON[c]}</span>`).join("");
+const FILTERS = [["all", "Все"], ["spot", "Споты"], ["park", "Парки"], ["party", "Тусовки"], ["cafe", "Кафе"]];
+$("filters").innerHTML = FILTERS.map(([k, n]) => `<span class="chipm" id="f_${k}" style="background:rgba(28,28,32,.85)">${n}</span>`).join("");
+$("here").innerHTML = ["Р", "Д", "М", "Я"].map((l, i) => `<div class="ava" id="here${i}" style="width:24px;height:24px;font-size:10px;margin-left:${i ? -6 : 0}px;${l === "Я" ? "background:var(--acc)" : ""}">${l}</div>`).join("");
+$("sheetStack").innerHTML = ["Р", "Д", "М", "Я"].map((l, i) => ava(l, `id="ss${i}" style="${l === "Я" ? "background:var(--acc)" : ""}"`)).join("");
+$("cats").innerHTML = ["spot", "park", "party", "cafe"].map(k => `<span class="chipm" id="cat_${k}">${ICON[k]}${CAT[k][1]}</span>`).join("") + `<span class="chipm">Другое</span>`;
+$("goStack").innerHTML = ["Я", "Р", "Д", "М"].map((l, i) => ava(l, `id="go${i}" style="${l === "Я" ? "background:var(--acc)" : ""}"`)).join("");
+$("s7chips").innerHTML = ["spot", "park", "party", "cafe"].map(k => `<span class="chip" style="position:static;font-size:32px;padding:14px 24px 14px 14px"><span class="ic" style="width:52px;height:52px;background:${CAT[k][2]}">${ICON[k]}</span>${CAT[k][0]}</span>`).join("");
+document.querySelectorAll(".tabs").forEach(tb => {
+  const on = +tb.dataset.tabs;
+  tb.innerHTML = ["chat", "pin", "music", "user"].map((ic, i) => `<span class="tab ${i === on ? "on" : ""}">${ICON[ic]}</span>`).join("");
+});
+document.querySelectorAll("[data-ic]").forEach(e => e.innerHTML = ICON[e.dataset.ic]);
+document.querySelectorAll("[data-octo]").forEach(e => e.innerHTML = OCTO);
+
+/* ---------- timing helpers ---------- */
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const P = (t, a, d) => cl((t - a) / d);
+const E = {
+  o: x => 1 - Math.pow(1 - x, 3),
+  io: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  b: x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+// enter at a, leave at b: fade + slide + optional scale
+function vis(el, t, a, b, o = {}) {
+  const { dy = 60, dx = 0, s0 = 1, d = .6, ease = E.o, out = .35, oy = -50, ox = 0 } = o;
+  const i = ease(P(t, a, d)), x = b == null ? 0 : E.io(P(t, b, out));
+  el.style.opacity = cl(i) * (1 - x);
+  el.style.transform = `translate(${dx * (1 - i) + ox * x}px, ${dy * (1 - i) + oy * x}px) scale(${s0 + (1 - s0) * i})`;
+  el.style.visibility = (P(t, a, d) <= 0 || x >= 1) ? "hidden" : "visible";
+}
+function words(id, t, a, b) {
+  const el = $(id);
+  el.style.visibility = t < a - .01 || t > b + .5 ? "hidden" : "visible";
+  el.querySelectorAll(".w").forEach((w, k) => vis(w, t, a + k * .07, b, { dy: 80, d: .55 }));
+}
+const pop = (el, t, a) => { const p = P(t, a, .35); el.style.transform = `scale(${p <= 0 ? 0 : E.b(p)})`; el.style.opacity = p > 0 ? 1 : 0; };
+const ring = deg => `conic-gradient(from ${deg}deg, var(--acc), transparent 40%, var(--party) 60%, transparent 90%, var(--acc))`;
+
+// finger taps: [time, element id]
+const TAPS = [[8.15, "f_park"], [9.55, "f_party"], [11.95, "pin0"], [13.85, "imHere"], [16.95, "photoBox"], [18.5, "cat_party"], [20.05, "addBtn"]];
+function tapAt(t) {
+  const tap = $("tap");
+  const cur = TAPS.filter(([at]) => t >= at - .15 && t < at + .45).pop();
+  if (!cur) { tap.style.opacity = 0; return; }
+  const scr = $("phs").getBoundingClientRect(), r = $(cur[1]).getBoundingClientRect(), k = scr.width / 340;
+  tap.style.left = ((r.left + r.width / 2 - scr.left) / k) + "px";
+  tap.style.top = ((r.top + r.height / 2 - scr.top) / k) + "px";
+  const p = P(t, cur[0] - .15, .6);
+  tap.style.opacity = p < .25 ? p / .25 : 1 - (p - .25) / .75;
+  tap.style.transform = `scale(${p < .25 ? 1.3 - p * 1.2 : 1 + (p - .25) * 1.2})`;
+}
+
+/* ---------- the frame ---------- */
+const SCREENS = [["scMap", 3.0, 16.4], ["scAdd", 16.4, 21.4], ["scChat", 21.4, 99]];
+
+window.renderAt = function (t) {
+  // background drift
+  $("g1").style.transform = `translate(${-200 + Math.sin(t * .35) * 160}px, ${300 + Math.cos(t * .27) * 220}px)`;
+  $("g1").style.opacity = .35 + .1 * Math.sin(t * .8);
+  $("g2").style.transform = `translate(${520 + Math.cos(t * .3) * 140}px, ${1200 + Math.sin(t * .22) * 200}px)`;
+  $("g2").style.opacity = .16;
+  document.querySelectorAll("#bars i").forEach((b, i) => { b.style.width = (P(t, SCENES[i], SCENES[i + 1] - SCENES[i]) * 100) + "%"; });
+
+  /* S1 intro */
+  vis($("s1logoWrap"), t, .15, 2.7, { dy: 0, s0: .3, d: .7, ease: E.b });
+  $("s1ring").style.background = ring(t * 140);
+  $("s1ring").style.opacity = .55;
+  $("s1ring").style.filter = "blur(18px)";
+  $("s1name").style.visibility = t < 3.1 ? "visible" : "hidden";
+  $("s1name").querySelectorAll("span").forEach((s, k) => vis(s, t, .5 + k * .05, 2.7, { dy: 120, d: .6 }));
+  vis($("s1tag"), t, 1.05, 2.7, { dy: 40 });
+  vis($("s1chip"), t, 1.45, 2.7, { dy: 40, s0: .7, ease: E.b });
+
+  /* headlines */
+  words("hl2", t, 3.15, 7.2);
+  vis($("sub2"), t, 3.6, 7.2, { dy: 30 });
+  words("hl3", t, 7.5, 11.6);
+  words("hl4", t, 11.9, 16.2);
+  words("hl5", t, 16.5, 21.2);
+  words("hl6", t, 21.5, 25.0);
+
+  /* phone */
+  const ph = $("phone");
+  const pin = E.o(P(t, 3.1, .9)), pout = E.io(P(t, 24.9, .6));
+  ph.style.transform = `translateY(${(1 - pin) * 1300 + pout * 1400}px) rotate(${(1 - pin) * 6}deg)`;
+  ph.style.visibility = t < 3.1 || t > 25.6 ? "hidden" : "visible";
+  SCREENS.forEach(([id, s, e], i) => {
+    const inn = i === 0 ? 1 : E.io(P(t, s, .45)), out = E.io(P(t, e, .45));
+    const el = $(id);
+    el.style.transform = `translateX(${(1 - inn) * 100 - out * 100}%)`;
+    el.style.visibility = inn > 0 && out < 1 ? "visible" : "hidden";
+  });
+  tapAt(t);
+
+  /* map: pins drop, then the filter dims the other kinds */
+  const wAll = 1 - E.io(P(t, 8.2, .3)), wPark = E.io(P(t, 8.2, .3)) * (1 - E.io(P(t, 9.6, .3))), wParty = E.io(P(t, 9.6, .3));
+  PINS.forEach(([, , c, s], k) => {
+    const pr = P(t, 3.9 + k * .1, .5), el = $("pin" + k);
+    const on = Math.max(wAll, c === "park" ? wPark : 0, c === "party" ? wParty : 0);
+    const big = s ? 1 + .18 * E.b(P(t, 11.95, .4)) + (t > 12.3 ? .05 * Math.sin(t * 6) : 0) : 1;
+    el.style.opacity = pr > 0 ? .18 + .82 * on : 0;
+    el.style.transform = `translateY(${-70 * (1 - E.b(pr))}px) rotate(-45deg) scale(${(.75 + .25 * on) * big})`;
+    el.style.boxShadow = s && t > 12 ? `0 0 0 ${4 + 3 * Math.sin(t * 6)}px rgba(255,92,157,.35), 0 4px 12px rgba(0,0,0,.5)` : "";
+    el.firstElementChild.style.transform = "rotate(45deg)";
+  });
+  FILTERS.forEach(([k]) => {
+    const on = k === "all" ? t < 8.2 : k === "park" ? t >= 8.2 && t < 9.6 : k === "party" ? t >= 9.6 : false;
+    const el = $("f_" + k);
+    el.style.background = on ? (k === "all" ? "var(--acc)" : CAT[k][2]) : "rgba(28,28,32,.85)";
+    el.style.color = on ? "#fff" : "var(--mut)";
+  });
+  vis($("filters"), t, 3.7, null, { dy: -20 });
+  const pulse = (t * 1.2) % 1;
+  $("meDot").style.boxShadow = `0 0 0 2px #fff inset, 0 0 0 ${pulse * 18}px rgba(77,124,255,${.45 * (1 - pulse)})`;
+  // who's there: avatars above the pin and in the sheet, "Я тут" adds me
+  [0, 1, 2].forEach(i => { pop($("here" + i), t, 12.3 + i * .1); pop($("ss" + i), t, 12.5 + i * .1); });
+  pop($("here3"), t, 14.0); pop($("ss3"), t, 14.0);
+  $("ss3").style.display = $("here3").style.display = t >= 14.0 ? "grid" : "none";
+  $("hereTxt").textContent = t >= 14.0 ? "4 кента сейчас тут" : "3 кента сейчас тут";
+  $("imHereTxt").textContent = t >= 13.95 ? "Ты тут ✓" : "Я тут";
+  $("imHere").style.background = t >= 13.95 ? "var(--ok)" : "var(--acc)";
+  $("imHere").style.transform = `scale(${1 - .08 * Math.sin(Math.PI * P(t, 13.8, .3))})`;
+  $("sheet").style.transform = `translateY(${(1 - E.o(P(t, 12.1, .55))) * 320}px)`;
+
+  /* callouts S2-S4 */
+  vis($("c2a"), t, 4.5, 7.2, { dx: -80, dy: 0, s0: .9 });
+  vis($("c2b"), t, 4.85, 7.2, { dx: 80, dy: 0, s0: .9 });
+  vis($("c2c"), t, 5.2, 7.2, { dx: -80, dy: 0, s0: .9 });
+  vis($("c2d"), t, 5.55, 7.2, { dx: 80, dy: 0, s0: .9 });
+  vis($("st3"), t, 8.4, 11.6, { dx: -80, dy: 0, ox: -80, oy: 0 });
+  vis($("c4"), t, 12.6, 16.2, { dx: -70, dy: 0, s0: .9 });
+  vis($("st4"), t, 12.9, 16.2, { dx: 80, dy: 0, ox: 80, oy: 0 });
+  $("st4n").textContent = t >= 14.0 ? 4 : 3;
+  $("st4n").style.transform = `scale(${1 + .3 * Math.sin(Math.PI * P(t, 14.0, .35))})`;
+  $("st4n").style.transformOrigin = "0 50%";
+
+  /* new place */
+  $("photoImg").style.opacity = E.o(P(t, 17.1, .4));
+  $("photoBox").style.borderColor = t > 17.1 ? "transparent" : "rgba(255,255,255,.18)";
+  const NAME = "Набережная у моста";
+  $("nameTxt").textContent = NAME.slice(0, Math.round(NAME.length * P(t, 17.55, .85)));
+  $("caret").style.opacity = t > 18.45 ? 0 : (Math.floor(t * 3) % 2 ? .2 : 1);
+  ["spot", "park", "party", "cafe"].forEach(k => {
+    const on = k === "party" && t >= 18.55, el = $("cat_" + k);
+    el.style.background = on ? CAT[k][2] : "var(--s1)";
+    el.style.color = on ? "#fff" : "var(--mut)";
+  });
+  const np = P(t, 19.1, .5);
+  $("newPin").style.opacity = np > 0 ? 1 : 0;
+  $("newPin").style.transform = `translateY(${-50 * (1 - E.b(np))}px) rotate(-45deg)`;
+  $("newPin").firstElementChild.style.transform = "rotate(45deg)";
+  $("addBtn").style.transform = `scale(${1 - .05 * Math.sin(Math.PI * P(t, 19.95, .3)) + (t > 19.3 && t < 19.95 ? .03 * Math.sin(t * 9) : 0)})`;
+  vis($("toast"), t, 20.25, 21.2, { dy: -30, s0: .8, d: .4, ease: E.b });
+  $("toast").style.transform += " translateX(-50%)";
+  vis($("c5a"), t, 17.0, 21.2, { dx: -70, dy: 0, s0: .9 });
+  vis($("c5b"), t, 18.9, 21.2, { dx: 70, dy: 0, s0: .9 });
+
+  /* group chat */
+  vis($("m0"), t, 21.75, null, { dy: 20, s0: .7, d: .4, ease: E.b });
+  vis($("m1"), t, 22.2, null, { dy: 30, s0: .8, d: .45, ease: E.b });
+  $("m1").style.transformOrigin = "100% 100%";
+  vis($("m2"), t, 24.05, null, { dy: 20, s0: .7, d: .4, ease: E.b });
+  const GO = [22.4, 22.95, 23.35, 23.75];
+  GO.forEach((a, i) => { pop($("go" + i), t, a); $("go" + i).style.display = t >= a ? "grid" : "none"; });
+  const going = GO.filter(a => t >= a).length;
+  $("goTxt").textContent = going ? `${going} ${going === 1 ? "идёт" : "идут"}` : "";
+  const typing = t > 23.5 && t < 24.05;
+  $("chatStatus").textContent = typing ? "Дэн печатает…" : "Рома, Дэн, Макс, Лёха";
+  $("chatStatus").style.color = typing ? "var(--acc2)" : "var(--mut)";
+  vis($("c6a"), t, 22.4, 25.0, { dx: -70, dy: 0, s0: .9 });
+  vis($("st6"), t, 22.7, 25.0, { dx: 80, dy: 0, ox: 80, oy: 0 });
+  $("st6n").textContent = Math.max(1, going);
+
+  /* S7 outro */
+  vis($("s7logoWrap"), t, 25.55, 28.55, { dy: 0, s0: .4, d: .6, ease: E.b });
+  $("s7oct").style.transform = `translateY(${Math.sin(t * 6) * 8}px) rotate(${Math.sin(t * 3) * 8}deg)`;
+  vis($("s7name"), t, 25.8, 28.55, { dy: 80 });
+  vis($("s7tag"), t, 26.05, 28.55, { dy: 50 });
+  [...$("s7chips").children].forEach((c, k) => vis(c, t, 26.3 + k * .12, 28.55, { dy: 40, s0: .8, ease: E.b }));
+
+  /* S8 disclaimer */
+  vis($("s8hl"), t, 28.95, null, { dy: 80 });
+  vis($("s8card"), t, 29.35, null, { dy: 60, s0: .94, ease: E.b });
+  $("s8card").style.borderColor = `color-mix(in srgb, var(--acc) ${70 + 30 * Math.sin(t * 5)}%, transparent)`;
+  vis($("s8brand"), t, 29.8, null, { dy: 40 });
+};
+
+// preview in a normal browser: plays in real time, ?t=12.5 freezes a frame
+const q = new URLSearchParams(location.search).get("t");
+if (q !== null) renderAt(+q);
+else if (!navigator.webdriver) { const t0 = performance.now(); (function loop() { renderAt(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })(); }
+else renderAt(0);
+</script>
+</body>
+</html>

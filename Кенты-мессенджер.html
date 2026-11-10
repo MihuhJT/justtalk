@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Мессенджер для кентов</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: chat-bubble hero, then a feature board where every card has a 3-way switch, a live summary rail and a plan built from the choices */
+:root {
+  --bg: #eceef3;
+  --surface: #ffffff;
+  --ink: #14161c;
+  --muted: #5d6272;
+  --line: #d6d9e2;
+  --accent: #2f4bff;
+  --accent-soft: #e2e6ff;
+  --later: #b26a00;
+  --later-soft: #fbeed6;
+  --no: #8a8f9c;
+  --no-soft: #e4e6eb;
+  --bubble-them: #ffffff;
+  --bubble-me: #2f4bff;
+  --bubble-me-ink: #ffffff;
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111318; --surface: #1a1d24; --ink: #eef0f6; --muted: #9aa0b2; --line: #2b2f3a;
+    --accent: #7d8cff; --accent-soft: #232a55; --later: #f0b75a; --later-soft: #3a2c14;
+    --no: #7b8091; --no-soft: #23262e; --bubble-them: #1f232c; --bubble-me: #4256ff; --bubble-me-ink: #ffffff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111318; --surface: #1a1d24; --ink: #eef0f6; --muted: #9aa0b2; --line: #2b2f3a;
+  --accent: #7d8cff; --accent-soft: #232a55; --later: #f0b75a; --later-soft: #3a2c14;
+  --no: #7b8091; --no-soft: #23262e; --bubble-them: #1f232c; --bubble-me: #4256ff; --bubble-me-ink: #ffffff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 120px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 6vw, 56px); line-height: 1.05; letter-spacing: -0.02em; }
+h2 { font-family: var(--f-display); font-weight: 500; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.01em; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--muted); max-width: 62ch; font-size: 17px; }
+section { display: flex; flex-direction: column; gap: 20px; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
+.hero-text { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.chat { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.msg { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 15px; }
+.msg small { display: block; font-family: var(--f-mono); font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.msg.them { background: var(--bubble-them); border: 1px solid var(--line); border-bottom-left-radius: 6px; align-self: flex-start; }
+.msg.me { background: var(--bubble-me); color: var(--bubble-me-ink); border-bottom-right-radius: 6px; align-self: flex-end; }
+.msg.me small { color: inherit; opacity: .75; }
+
+/* board */
+.board-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-family: var(--f-mono); font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+.pill.yes { background: var(--accent-soft); color: var(--accent); }
+.pill.later { background: var(--later-soft); color: var(--later); }
+.pill.no { background: var(--no-soft); color: var(--no); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+.cats { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+.cat { display: flex; flex-direction: column; gap: 12px; }
+.cat-title { display: flex; gap: 10px; align-items: baseline; }
+.cat-title span { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, opacity .15s; min-width: 0; }
+.card[data-state="yes"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.card[data-state="later"] { border-color: var(--later); border-style: dashed; }
+.card[data-state="no"] { opacity: .55; }
+.card p { color: var(--muted); font-size: 14px; }
+.meta { display: flex; gap: 14px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dots { letter-spacing: 2px; color: var(--ink); }
+.switch { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-radius: 10px; padding: 3px; gap: 3px; margin-top: auto; }
+.switch button { font: 600 13px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 7px 4px; border-radius: 8px; cursor: pointer; }
+.switch button:hover { color: var(--ink); }
+.switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.switch button[aria-pressed="true"][data-v="yes"] { background: var(--accent); color: #fff; }
+.switch button[aria-pressed="true"][data-v="later"] { background: var(--later); color: var(--surface); }
+.switch button[aria-pressed="true"][data-v="no"] { background: var(--no); color: var(--surface); }
+.note { font-size: 13px; color: var(--later); }
+.card-top { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.star { flex-shrink: 0; font-family: var(--f-mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); }
+
+/* summary rail */
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.counts div { border-radius: 10px; padding: 8px 4px; }
+.counts b { display: block; font-family: var(--f-display); font-size: 24px; font-variant-numeric: tabular-nums; }
+.counts span { font-size: 12px; }
+.c-yes { background: var(--accent-soft); color: var(--accent); }
+.c-later { background: var(--later-soft); color: var(--later); }
+.c-no { background: var(--no-soft); color: var(--no); }
+.est { display: flex; flex-direction: column; gap: 4px; }
+.est .row { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.est .row b { font-family: var(--f-mono); }
+.bar { height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.warn { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.warn li { font-size: 13px; padding-left: 12px; border-left: 2px solid var(--later); color: var(--ink); }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: 600 13px var(--f-body); border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+.btn:hover { border-color: var(--ink); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* architecture */
+.arch { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; overflow-x: auto; }
+.arch-grid { display: grid; grid-template-columns: 1fr 60px 1.2fr 60px 1fr; align-items: center; min-width: 720px; gap: 0; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.node { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg); transition: opacity .2s, border-color .2s; }
+.node b { display: block; font-size: 14px; }
+.node span { font-size: 12px; color: var(--muted); }
+.node.core { border-color: var(--accent); }
+.node.off { opacity: .3; border-style: dashed; }
+.node.later { border-color: var(--later); border-style: dashed; }
+.wire { height: 2px; background: var(--line); position: relative; }
+.wire::after { content: attr(data-l); position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-family: var(--f-mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+/* stack + plan */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.opt { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.opt.pick { border-color: var(--accent); }
+.opt ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.tag { align-self: flex-start; }
+.stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.stage ol { margin: 0; padding-left: 20px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.stage .empty { color: var(--muted); font-size: 14px; }
+.stage-n { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.small { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .hero, .layout, .two, .stages { grid-template-columns: 1fr; }
+  .rail { position: static; order: -1; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Рабочее название · «Кенты»</div>
+      <h1>Мессенджер для своих</h1>
+      <p class="lede">Закрытый чат только для нашей компании. Попасть туда можно только по инвайту, сервер стоит у нас дома, а функции мы делаем те, которые реально нужны. Ниже карта функций: у каждой отметь «Надо», «Позже» или «Не надо», и схема с планом пересоберутся сами.</p>
+    </div>
+    <div class="chat" aria-label="Пример переписки">
+      <div class="msg them"><small>Рома</small>давайте свой мессенджер замутим</div>
+      <div class="msg them"><small>Рома</small>чтоб только мы и никакой рекламы</div>
+      <div class="msg me"><small>я</small>го. сначала решим, что в нём будет</div>
+      <div class="msg them"><small>Рома</small>звонки обязательно 🔥</div>
+      <div class="msg me"><small>я</small>звонки сложные, давай на второй этап</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="board-head">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="eyebrow">Карта функций</div>
+        <h2>Что будет в мессенджере</h2>
+      </div>
+      <div class="legend">
+        <span class="pill yes">Надо: делаем сразу</span>
+        <span class="pill later">Позже: следующие этапы</span>
+        <span class="pill no">Не надо</span>
+      </div>
+    </div>
+    <div class="layout">
+      <div class="cats" id="cats"><div class="cat"><div class="cat-title"><h3>Основа</h3><span>без этого чата нет</span></div><div class="cards"><div class="card" id="card-invite" data-state="yes">
+        <div class="card-top"><h3>Вход по инвайту</h3></div>
+        <p>Зайти можно только по ссылке от своего. Чужих нет.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Вход по инвайту">
+          <button type="button" id="b-invite-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-invite-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-invite-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-dm" data-state="yes">
+        <div class="card-top"><h3>Личные чаты</h3></div>
+        <p>Переписка один на один.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Личные чаты">
+          <button type="button" id="b-dm-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-dm-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-dm-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-group" data-state="yes">
+        <div class="card-top"><h3>Общий чат кентов</h3></div>
+        <p>Групповые чаты, можно несколько.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Общий чат кентов">
+          <button type="button" id="b-group-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-group-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-group-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-status" data-state="yes">
+        <div class="card-top"><h3>Прочитано и «печатает…»</h3></div>
+        <p>Галочки и индикатор набора.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Прочитано и «печатает…»">
+          <button type="button" id="b-status-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-status-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-status-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-push" data-state="yes">
+        <div class="card-top"><h3>Уведомления</h3></div>
+        <p>Пуши, когда приложение закрыто.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Уведомления">
+          <button type="button" id="b-push-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-push-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-push-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-search" data-state="later">
+        <div class="card-top"><h3>Поиск по истории</h3></div>
+        <p>Найти старое сообщение или ссылку.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Поиск по истории">
+          <button type="button" id="b-search-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-search-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-search-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div></div></div><div class="cat"><div class="cat-title"><h3>Медиа</h3><span>фото, голос, мемы</span></div><div class="cards"><div class="card" id="card-photo" data-state="yes">
+        <div class="card-top"><h3>Фото и видео</h3></div>
+        <p>Отправка с превью и сжатием.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Фото и видео">
+          <button type="button" id="b-photo-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-photo-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-photo-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-voice" data-state="later">
+        <div class="card-top"><h3>Голосовые</h3></div>
+        <p>Запись и проигрывание войсов.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Голосовые">
+          <button type="button" id="b-voice-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-voice-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-voice-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-stickers" data-state="later">
+        <div class="card-top"><h3>Свои стикеры</h3></div>
+        <p>Паки из наших мемов и фоток.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Свои стикеры">
+          <button type="button" id="b-stickers-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-stickers-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-stickers-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-music" data-state="later">
+        <div class="card-top"><h3>Треки с превью</h3></div>
+        <p>Кидаешь ссылку на песню, в чате карточка с обложкой.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Треки с превью">
+          <button type="button" id="b-music-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-music-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-music-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-yt" data-state="yes">
+        <div class="card-top"><h3>YouTube в чате</h3></div>
+        <p>Кидаешь ссылку, ролик играет прямо в чате, выходить никуда не надо.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        <div class="note">Ролики показываем только через официальный плеер YouTube: скачивать их к себе на сервер правила YouTube не разрешают.</div>
+        <div class="switch" role="group" aria-label="YouTube в чате">
+          <button type="button" id="b-yt-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-yt-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-yt-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div></div></div><div class="cat"><div class="cat-title"><h3>Звонки</h3><span>самая сложная часть</span></div><div class="cards"><div class="card" id="card-call" data-state="later">
+        <div class="card-top"><h3>Голосовые звонки</h3></div>
+        <p>Звонок один на один.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●●</span></span></div>
+        <div class="note">Для звонков нужен ещё TURN-сервер, иначе через мобильный интернет часто не соединяет.</div>
+        <div class="switch" role="group" aria-label="Голосовые звонки">
+          <button type="button" id="b-call-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-call-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-call-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-video" data-state="later">
+        <div class="card-top"><h3>Видеозвонки</h3></div>
+        <p>То же, но с камерой.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●●</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Видеозвонки">
+          <button type="button" id="b-video-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-video-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-video-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-room" data-state="no">
+        <div class="card-top"><h3>Голосовая комната</h3></div>
+        <p>Как в Discord: зашёл и болтаешь, кто в комнате.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●●</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Голосовая комната">
+          <button type="button" id="b-room-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-room-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-room-no" data-v="no" aria-pressed="true">Не надо</button>
+        </div></div></div></div><div class="cat"><div class="cat-title"><h3>Фишки для кентов</h3><span>то, чего нет в Telegram</span></div><div class="cards"><div class="card" id="card-spots" data-state="yes">
+        <div class="card-top"><h3>Карта спотов</h3><span class="star">наша фишка</span></div>
+        <p>Наша BMX-карта прямо в мессенджере: споты, фотки, кто сейчас катает. Кинул спот в чат, и все видят его на карте.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Карта спотов">
+          <button type="button" id="b-spots-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-spots-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-spots-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-rate" data-state="yes">
+        <div class="card-top"><h3>Оценки музыки</h3><span class="star">наша фишка</span></div>
+        <p>Наш MusicRater внутри чата: кидаешь трек или альбом, кенты оценивают от 1 до 10 по критериям, и видно общий балл и топ компании. Дизайн подгоним под мессенджер.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Оценки музыки">
+          <button type="button" id="b-rate-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-rate-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-rate-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-watch" data-state="later">
+        <div class="card-top"><h3>Смотреть вместе</h3></div>
+        <p>Один включает ролик на YouTube, у всех он идёт синхронно: пауза и перемотка общие.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Смотреть вместе">
+          <button type="button" id="b-watch-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-watch-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-watch-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-react" data-state="yes">
+        <div class="card-top"><h3>Реакции</h3></div>
+        <p>Эмодзи на сообщение.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Реакции">
+          <button type="button" id="b-react-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-react-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-react-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-poll" data-state="yes">
+        <div class="card-top"><h3>Опросы «куда идём»</h3></div>
+        <p>Быстро решить, где и когда.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Опросы «куда идём»">
+          <button type="button" id="b-poll-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-poll-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-poll-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-meet" data-state="later">
+        <div class="card-top"><h3>Сборы</h3></div>
+        <p>Встреча с местом, временем и списком «иду / не иду».</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Сборы">
+          <button type="button" id="b-meet-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-meet-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-meet-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-debts" data-state="no">
+        <div class="card-top"><h3>Кто кому должен</h3></div>
+        <p>Общий счёт после тусовки.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Кто кому должен">
+          <button type="button" id="b-debts-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-debts-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-debts-no" data-v="no" aria-pressed="true">Не надо</button>
+        </div></div><div class="card" id="card-bot" data-state="no">
+        <div class="card-top"><h3>ИИ-бот в чате</h3></div>
+        <p>Отвечает, ищет, напоминает.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        <div class="note">Бот на Claude работает через API, а запросы стоят денег.</div>
+        <div class="switch" role="group" aria-label="ИИ-бот в чате">
+          <button type="button" id="b-bot-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-bot-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-bot-no" data-v="no" aria-pressed="true">Не надо</button>
+        </div></div></div></div><div class="cat"><div class="cat-title"><h3>Приватность</h3><span>данные остаются у нас</span></div><div class="cards"><div class="card" id="card-home" data-state="yes">
+        <div class="card-top"><h3>Сервер дома</h3></div>
+        <p>Всё хранится на нашем мини-ПК, а не у какой-то компании.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●○○</span></span></div>
+        <div class="note">Мини-ПК должен работать 24/7, и к нему нужен доступ из интернета (белый IP или туннель).</div>
+        <div class="switch" role="group" aria-label="Сервер дома">
+          <button type="button" id="b-home-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-home-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-home-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-vanish" data-state="later">
+        <div class="card-top"><h3>Исчезающие сообщения</h3></div>
+        <p>Удаляются сами через заданное время.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Исчезающие сообщения">
+          <button type="button" id="b-vanish-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-vanish-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-vanish-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-e2e" data-state="no">
+        <div class="card-top"><h3>Сквозное шифрование</h3></div>
+        <p>Даже сервер не может прочитать переписку.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●●</span></span></div>
+        <div class="note">С шифрованием сервер не сможет искать по истории: поиск придётся делать на телефоне.</div>
+        <div class="switch" role="group" aria-label="Сквозное шифрование">
+          <button type="button" id="b-e2e-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-e2e-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-e2e-no" data-v="no" aria-pressed="true">Не надо</button>
+        </div></div></div></div><div class="cat"><div class="cat-title"><h3>Где работает</h3><span>платформы</span></div><div class="cards"><div class="card" id="card-android" data-state="yes">
+        <div class="card-top"><h3>Android</h3></div>
+        <p>Основное приложение.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Android">
+          <button type="button" id="b-android-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-android-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-android-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-web" data-state="yes">
+        <div class="card-top"><h3>Веб-версия</h3></div>
+        <p>Открывается в браузере, удобно для старта.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Веб-версия">
+          <button type="button" id="b-web-yes" data-v="yes" aria-pressed="true">Надо</button><button type="button" id="b-web-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-web-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-ios" data-state="later">
+        <div class="card-top"><h3>iPhone</h3></div>
+        <p>Отдельное приложение под iOS.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●●</span></span></div>
+        <div class="note">Для iPhone нужен Xcode и аккаунт разработчика Apple за $99 в год, иначе кентам не поставить.</div>
+        <div class="switch" role="group" aria-label="iPhone">
+          <button type="button" id="b-ios-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-ios-later" data-v="later" aria-pressed="true">Позже</button><button type="button" id="b-ios-no" data-v="no" aria-pressed="false">Не надо</button>
+        </div></div><div class="card" id="card-desktop" data-state="no">
+        <div class="card-top"><h3>Mac / Windows</h3></div>
+        <p>Программа для компа.</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">●●○</span></span></div>
+        
+        <div class="switch" role="group" aria-label="Mac / Windows">
+          <button type="button" id="b-desktop-yes" data-v="yes" aria-pressed="false">Надо</button><button type="button" id="b-desktop-later" data-v="later" aria-pressed="false">Позже</button><button type="button" id="b-desktop-no" data-v="no" aria-pressed="true">Не надо</button>
+        </div></div></div></div></div>
+      <aside class="rail" aria-live="polite">
+        <div class="eyebrow">Итог выбора</div>
+        <div class="counts">
+          <div class="c-yes"><b id="nYes">14</b><span>надо</span></div>
+          <div class="c-later"><b id="nLater">10</b><span>позже</span></div>
+          <div class="c-no"><b id="nNo">5</b><span>не надо</span></div>
+        </div>
+        <ul class="warn" id="warn"><li>Ролики показываем только через официальный плеер YouTube: скачивать их к себе на сервер правила YouTube не разрешают.</li><li>Для звонков нужен ещё TURN-сервер, иначе через мобильный интернет часто не соединяет.</li><li>Мини-ПК должен работать 24/7, и к нему нужен доступ из интернета (белый IP или туннель).</li><li>Для iPhone нужен Xcode и аккаунт разработчика Apple за $99 в год, иначе кентам не поставить.</li></ul>
+        <div class="btns">
+          <button class="btn" id="resetBtn" type="button">Вернуть как было</button>
+          <button class="btn" id="copyBtn" type="button">Скопировать итог</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Как это устроено</div>
+    <h2>Схема работы</h2>
+    <p class="lede">Сплошная рамка значит «нужно для первой версии», пунктир — «позже», бледная — «пока не нужно». Схема меняется вместе с выбором.</p>
+    <div class="arch">
+      <div class="arch-grid">
+        <div class="col" id="colClients"><div class="node core"><b>Android</b><span>Kotlin</span></div><div class="node core"><b>Веб</b><span>браузер</span></div><div class="node later"><b>iPhone</b><span>Swift</span></div><div class="node off"><b>Комп</b><span>Mac / Windows</span></div></div>
+        <div class="wire" data-l="WebSocket"></div>
+        <div class="col" id="colServer"><div class="node core"><b>Сервер чата</b><span>FastAPI + WebSocket, на мини-ПК</span></div><div class="node core"><b>Инвайты и вход</b><span>токены, только свои</span></div><div class="node core"><b>Медиа-сервис</b><span>сжатие фото, видео, войсов</span></div><div class="node core"><b>Карта спотов</b><span>споты, фото, кто катает</span></div><div class="node core"><b>Оценки музыки</b><span>критерии, баллы, топ компании</span></div><div class="node later"><b>Синхронизация</b><span>общая пауза и перемотка</span></div><div class="node later"><b>Звонки</b><span>WebRTC + TURN-сервер</span></div><div class="node off"><b>ИИ-бот</b><span>Claude API</span></div></div>
+        <div class="wire" data-l="хранит / шлёт"></div>
+        <div class="col" id="colInfra"><div class="node core"><b>PostgreSQL</b><span>сообщения, чаты, люди</span></div><div class="node core"><b>Файлы на диске</b><span>фото и видео</span></div><div class="node core"><b>Пуши (FCM)</b><span>уведомления от Google</span></div><div class="node core"><b>Плеер YouTube</b><span>официальный, ролики не храним</span></div><div class="node core"><b>Карты</b><span>OpenStreetMap, подложка для спотов</span></div><div class="node off"><b>Ключи шифрования</b><span>хранятся на телефонах</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">На чём делать</div>
+    <h2>Два пути</h2>
+    <div class="two">
+      <div class="opt pick">
+        <span class="pill yes tag">Советую</span>
+        <h3>Свой сервер на Python + Android-приложение</h3>
+        <ul>
+          <li>Сервер на FastAPI с WebSocket, база PostgreSQL. Всё это крутится на нашем мини-ПК, который стоит дома и работает круглосуточно.</li>
+          <li>Приложение на Kotlin в Android Studio, оно уже стоит.</li>
+          <li>Весь код наш, разберёмся в каждой детали. Медленнее, зато научимся.</li>
+          <li>Начать можно с веб-версии: страница чата на том же сервере, так идею проверим быстрее всего.</li>
+        </ul>
+      </div>
+      <div class="opt">
+        <span class="pill no tag">Если хочется быстро</span>
+        <h3>Готовый протокол Matrix + свой клиент</h3>
+        <ul>
+          <li>Ставим сервер Synapse, он уже умеет чаты, файлы, шифрование и звонки.</li>
+          <li>Сверху делаем свой интерфейс и фишки для кентов.</li>
+          <li>Работает надёжно с первого дня, но своего кода меньше, а сервер тяжелее.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">План</div>
+    <h2>Порядок работы</h2>
+    <div class="stages">
+      <div class="stage">
+        <div class="stage-n">Этап 1</div>
+        <h3>Первая версия</h3>
+        <p class="small">Всё, что отмечено «Надо», от простого к сложному.</p>
+        <ol id="s1"><li>Вход по инвайту</li><li>Личные чаты</li><li>Общий чат кентов</li><li>Прочитано и «печатает…»</li><li>Реакции</li><li>Опросы «куда идём»</li><li>Сервер дома</li><li>Уведомления</li><li>Фото и видео</li><li>YouTube в чате</li><li>Карта спотов</li><li>Оценки музыки</li><li>Android</li><li>Веб-версия</li></ol>
+      </div>
+      <div class="stage">
+        <div class="stage-n">Этап 2</div>
+        <h3>Следом</h3>
+        <p class="small">Простые и средние функции из «Позже».</p>
+        <ol id="s2"><li>Поиск по истории</li><li>Голосовые</li><li>Свои стикеры</li><li>Треки с превью</li><li>Смотреть вместе</li><li>Сборы</li><li>Исчезающие сообщения</li></ol>
+      </div>
+      <div class="stage">
+        <div class="stage-n">Этап 3</div>
+        <h3>Сложное</h3>
+        <p class="small">Тяжёлые функции из «Позже».</p>
+        <ol id="s3"><li>Голосовые звонки</li><li>Видеозвонки</li><li>iPhone</li></ol>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// diff: 1 easy, 2 medium, 3 hard; star: our own signature feature
+const CATS = [
+  ["base", "Основа", "без этого чата нет"],
+  ["media", "Медиа", "фото, голос, мемы"],
+  ["calls", "Звонки", "самая сложная часть"],
+  ["crew", "Фишки для кентов", "то, чего нет в Telegram"],
+  ["safe", "Приватность", "данные остаются у нас"],
+  ["apps", "Где работает", "платформы"],
+];
+const F = [
+  ["invite", "base", "Вход по инвайту", "Зайти можно только по ссылке от своего. Чужих нет.", 1, "yes"],
+  ["dm", "base", "Личные чаты", "Переписка один на один.", 1, "yes"],
+  ["group", "base", "Общий чат кентов", "Групповые чаты, можно несколько.", 1, "yes"],
+  ["status", "base", "Прочитано и «печатает…»", "Галочки и индикатор набора.", 1, "yes"],
+  ["push", "base", "Уведомления", "Пуши, когда приложение закрыто.", 2, "yes"],
+  ["search", "base", "Поиск по истории", "Найти старое сообщение или ссылку.", 2, "later"],
+  ["photo", "media", "Фото и видео", "Отправка с превью и сжатием.", 2, "yes"],
+  ["voice", "media", "Голосовые", "Запись и проигрывание войсов.", 2, "later"],
+  ["stickers", "media", "Свои стикеры", "Паки из наших мемов и фоток.", 2, "later"],
+  ["music", "media", "Треки с превью", "Кидаешь ссылку на песню, в чате карточка с обложкой.", 2, "later"],
+  ["yt", "media", "YouTube в чате", "Кидаешь ссылку, ролик играет прямо в чате, выходить никуда не надо.", 2, "yes", "Ролики показываем только через официальный плеер YouTube: скачивать их к себе на сервер правила YouTube не разрешают."],
+  ["call", "calls", "Голосовые звонки", "Звонок один на один.", 3, "later", "Для звонков нужен ещё TURN-сервер, иначе через мобильный интернет часто не соединяет."],
+  ["video", "calls", "Видеозвонки", "То же, но с камерой.", 3, "later"],
+  ["room", "calls", "Голосовая комната", "Как в Discord: зашёл и болтаешь, кто в комнате.", 3, "no"],
+  ["spots", "crew", "Карта спотов", "Наша BMX-карта прямо в мессенджере: споты, фотки, кто сейчас катает. Кинул спот в чат, и все видят его на карте.", 2, "yes", null, true],
+  ["rate", "crew", "Оценки музыки", "Наш MusicRater внутри чата: кидаешь трек или альбом, кенты оценивают от 1 до 10 по критериям, и видно общий балл и топ компании. Дизайн подгоним под мессенджер.", 2, "yes", null, true],
+  ["watch", "crew", "Смотреть вместе", "Один включает ролик на YouTube, у всех он идёт синхронно: пауза и перемотка общие.", 2, "later"],
+  ["react", "crew", "Реакции", "Эмодзи на сообщение.", 1, "yes"],
+  ["poll", "crew", "Опросы «куда идём»", "Быстро решить, где и когда.", 1, "yes"],
+  ["meet", "crew", "Сборы", "Встреча с местом, временем и списком «иду / не иду».", 2, "later"],
+  ["debts", "crew", "Кто кому должен", "Общий счёт после тусовки.", 2, "no"],
+  ["bot", "crew", "ИИ-бот в чате", "Отвечает, ищет, напоминает.", 2, "no", "Бот на Claude работает через API, а запросы стоят денег."],
+  ["home", "safe", "Сервер дома", "Всё хранится на нашем мини-ПК, а не у какой-то компании.", 1, "yes", "Мини-ПК должен работать 24/7, и к нему нужен доступ из интернета (белый IP или туннель)."],
+  ["vanish", "safe", "Исчезающие сообщения", "Удаляются сами через заданное время.", 2, "later"],
+  ["e2e", "safe", "Сквозное шифрование", "Даже сервер не может прочитать переписку.", 3, "no", "С шифрованием сервер не сможет искать по истории: поиск придётся делать на телефоне."],
+  ["android", "apps", "Android", "Основное приложение.", 2, "yes"],
+  ["web", "apps", "Веб-версия", "Открывается в браузере, удобно для старта.", 2, "yes"],
+  ["ios", "apps", "iPhone", "Отдельное приложение под iOS.", 3, "later", "Для iPhone нужен Xcode и аккаунт разработчика Apple за $99 в год, иначе кентам не поставить."],
+  ["desktop", "apps", "Mac / Windows", "Программа для компа.", 2, "no"],
+].map(([id, cat, name, desc, diff, def, warn, star]) => ({ id, cat, name, desc, diff, def, warn, star }));
+
+const KEY = "kenty-map-v2";
+let state = {};
+function load() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+  F.forEach(f => state[f.id] = ["yes", "later", "no"].includes(saved[f.id]) ? saved[f.id] : f.def);
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+const LABEL = { yes: "Надо", later: "Позже", no: "Не надо" };
+const dots = d => "●".repeat(d) + "○".repeat(3 - d);
+
+function buildBoard() {
+  const root = document.getElementById("cats");
+  root.innerHTML = "";
+  CATS.forEach(([cid, title, hint]) => {
+    const cat = document.createElement("div");
+    cat.className = "cat";
+    cat.innerHTML = `<div class="cat-title"><h3>${title}</h3><span>${hint}</span></div><div class="cards"></div>`;
+    const cards = cat.querySelector(".cards");
+    F.filter(f => f.cat === cid).forEach(f => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = "card-" + f.id;
+      card.innerHTML = `
+        <div class="card-top"><h3>${f.name}</h3>${f.star ? `<span class="star">наша фишка</span>` : ""}</div>
+        <p>${f.desc}</p>
+        <div class="meta"><span title="Сложность">сложность <span class="dots">${dots(f.diff)}</span></span></div>
+        ${f.warn ? `<div class="note">${f.warn}</div>` : ""}
+        <div class="switch" role="group" aria-label="${f.name}">
+          ${["yes", "later", "no"].map(v => `<button type="button" id="b-${f.id}-${v}" data-v="${v}">${LABEL[v]}</button>`).join("")}
+        </div>`;
+      card.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+        state[f.id] = b.dataset.v; save(); render();
+      }));
+      cards.appendChild(card);
+    });
+    root.appendChild(cat);
+  });
+}
+
+// architecture nodes: [label, sub, feature ids that need it (any), always]
+const ARCH = {
+  colClients: [
+    ["Android", "Kotlin", ["android"]],
+    ["Веб", "браузер", ["web"]],
+    ["iPhone", "Swift", ["ios"]],
+    ["Комп", "Mac / Windows", ["desktop"]],
+  ],
+  colServer: [
+    ["Сервер чата", "FastAPI + WebSocket, на мини-ПК", null],
+    ["Инвайты и вход", "токены, только свои", ["invite"]],
+    ["Медиа-сервис", "сжатие фото, видео, войсов", ["photo", "voice", "stickers", "music"]],
+    ["Карта спотов", "споты, фото, кто катает", ["spots"]],
+    ["Оценки музыки", "критерии, баллы, топ компании", ["rate"]],
+    ["Синхронизация", "общая пауза и перемотка", ["watch"]],
+    ["Звонки", "WebRTC + TURN-сервер", ["call", "video", "room"]],
+    ["ИИ-бот", "Claude API", ["bot"]],
+  ],
+  colInfra: [
+    ["PostgreSQL", "сообщения, чаты, люди", null],
+    ["Файлы на диске", "фото и видео", ["photo", "voice", "stickers"]],
+    ["Пуши (FCM)", "уведомления от Google", ["push"]],
+    ["Плеер YouTube", "официальный, ролики не храним", ["yt", "watch"]],
+    ["Карты", "OpenStreetMap, подложка для спотов", ["spots"]],
+    ["Ключи шифрования", "хранятся на телефонах", ["e2e"]],
+  ],
+};
+function nodeState(ids) {
+  if (!ids) return "core";
+  const s = ids.map(i => state[i]);
+  if (s.includes("yes")) return "core";
+  if (s.includes("later")) return "later";
+  return "off";
+}
+
+function render() {
+  F.forEach(f => {
+    document.getElementById("card-" + f.id).dataset.state = state[f.id];
+    ["yes", "later", "no"].forEach(v => document.getElementById(`b-${f.id}-${v}`).setAttribute("aria-pressed", state[f.id] === v));
+  });
+  const by = v => F.filter(f => state[f.id] === v);
+  const yes = by("yes"), later = by("later");
+  document.getElementById("nYes").textContent = yes.length;
+  document.getElementById("nLater").textContent = later.length;
+  document.getElementById("nNo").textContent = by("no").length;
+
+  const warn = document.getElementById("warn");
+  warn.innerHTML = "";
+  const w = F.filter(f => f.warn && state[f.id] !== "no").map(f => f.warn);
+  if (state.android === "no" && state.web === "no" && state.ios === "no" && state.desktop === "no") w.unshift("Не выбрана ни одна платформа, мессенджер негде открыть.");
+  if (state.dm === "no" && state.group === "no") w.unshift("Нет ни личных, ни общих чатов.");
+  w.forEach(t => { const li = document.createElement("li"); li.textContent = t; warn.appendChild(li); });
+
+  Object.entries(ARCH).forEach(([col, nodes]) => {
+    const el = document.getElementById(col);
+    el.innerHTML = "";
+    nodes.forEach(([label, sub, ids]) => {
+      const n = document.createElement("div");
+      n.className = "node " + nodeState(ids);
+      n.innerHTML = `<b>${label}</b><span>${sub}</span>`;
+      el.appendChild(n);
+    });
+  });
+
+  const byOrder = arr => [...arr].sort((a, b) => a.diff - b.diff);
+  const fill = (id, arr) => {
+    const ol = document.getElementById(id);
+    ol.innerHTML = arr.length
+      ? byOrder(arr).map(f => `<li>${f.name}</li>`).join("")
+      : `<li class="empty" style="list-style:none;margin-left:-20px">Пока пусто</li>`;
+  };
+  fill("s1", yes);
+  fill("s2", later.filter(f => f.diff < 3));
+  fill("s3", later.filter(f => f.diff === 3));
+}
+
+function summaryText() {
+  const list = v => F.filter(f => state[f.id] === v).map(f => "• " + f.name).join("\n") || "—";
+  return `Мессенджер для кентов\n\nНадо:\n${list("yes")}\n\nПозже:\n${list("later")}\n\nНе надо:\n${list("no")}`;
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  F.forEach(f => state[f.id] = f.def); save(); render();
+});
+document.getElementById("copyBtn").addEventListener("click", e => {
+  const btn = e.currentTarget;
+  navigator.clipboard.writeText(summaryText())
+    .then(() => { btn.textContent = "Скопировано"; setTimeout(() => btn.textContent = "Скопировать итог", 1500); })
+    .catch(() => { btn.textContent = "Не вышло скопировать"; });
+});
+
+load();
+buildBoard();
+render();
+</script>
+
+</body>
+</html>

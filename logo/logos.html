@@ -1,0 +1,196 @@
+<title>JustTalk Logo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: big live preview on the left (icon, home screen, lockup), concept grid + options on the right */
+:root{
+  --bg:#050507; --panel:#101014; --line:#22222a; --fg:#f2f2f6; --mute:#8b8b98;
+  --acc:#7366f0;
+  --display:"Onest",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:420px 1fr;gap:32px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}}
+h1{font-size:40px;font-weight:800;letter-spacing:-1px;margin:0 0 6px;text-wrap:balance}
+h1 span{color:var(--acc)}
+.sub{color:var(--mute);margin:0 0 28px;font-size:16px}
+.stage{position:sticky;top:16px;background:var(--panel);border:1px solid var(--line);border-radius:32px;padding:28px;display:grid;gap:26px;min-width:0}
+@media (max-width:900px){.stage{position:static}}
+.hero{display:flex;flex-direction:column;align-items:center;gap:16px}
+.icon{border-radius:28%;overflow:hidden;display:block}
+.icon svg{display:block;width:100%;height:100%}
+.hero .icon{width:200px;height:200px;box-shadow:0 30px 80px -20px color-mix(in srgb,var(--acc) 60%,transparent)}
+.lock{display:flex;align-items:center;gap:14px}
+.lock .icon{width:56px;height:56px}
+.lock b{font-size:34px;font-weight:800;letter-spacing:-1px}
+.lock b span{color:var(--acc)}
+.cap{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.home{border-radius:24px;padding:22px 18px;background:linear-gradient(160deg,#1b1830,#07070b 70%);display:grid;grid-template-columns:repeat(4,1fr);gap:16px 10px;justify-items:center}
+.app{display:grid;justify-items:center;gap:6px;font-size:11px;color:#cfcfd8}
+.app .icon{width:54px;height:54px}
+.app .icon.round{border-radius:50%}
+.ghost{width:54px;height:54px;border-radius:50%;background:#2a2a33}
+.sizes{display:flex;align-items:flex-end;gap:18px}
+.sizes .icon{border-radius:50%}
+.notif{display:flex;align-items:center;gap:10px;background:#1a1a20;border-radius:18px;padding:12px 14px;font-size:13px}
+.notif .mono{width:20px;height:20px;color:#fff}
+.notif .mono svg{width:100%;height:100%}
+.notif small{color:var(--mute);display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.card{all:unset;cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:16px;display:grid;gap:12px;justify-items:center;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:#3a3a46}
+.card:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.card[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.card .icon{width:96px;height:96px}
+.card b{font-size:15px;font-weight:700}
+.card small{color:var(--mute);font-size:12px;text-align:center;line-height:1.35}
+.opts{display:grid;gap:18px;margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:20px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row .lbl{width:110px;color:var(--mute);font-size:14px}
+.pill{all:unset;cursor:pointer;padding:9px 16px;border-radius:999px;background:#1c1c23;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.pill[aria-pressed="true"]{background:var(--fg);color:#000}
+.pill:focus-visible{outline:2px solid var(--acc)}
+.sw{width:14px;height:14px;border-radius:50%}
+.copy{all:unset;cursor:pointer;justify-self:start;background:var(--acc);color:#fff;font-weight:700;padding:13px 22px;border-radius:999px}
+.copy:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.out{font-size:13px;color:var(--mute);min-height:1em}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+
+<div class="wrap">
+  <aside class="stage" aria-label="Предпросмотр">
+    <div class="hero">
+      <span class="icon" id="big"></span>
+      <div class="lock"><span class="icon" id="lockIcon"></span><b>Just<span>Talk</span></b></div>
+    </div>
+    <div>
+      <div class="cap">На рабочем столе</div>
+      <div class="home">
+        <div class="app"><span class="ghost"></span>Камера</div>
+        <div class="app"><span class="icon round" id="homeIcon"></span>JustTalk</div>
+        <div class="app"><span class="ghost"></span>Telegram</div>
+        <div class="app"><span class="ghost"></span>Карты</div>
+      </div>
+    </div>
+    <div>
+      <div class="cap">Мелкие размеры</div>
+      <div class="sizes" id="sizes"></div>
+    </div>
+    <div>
+      <div class="cap">Уведомление</div>
+      <div class="notif"><span class="mono" id="mono"></span><div>Рома<small>го на спот в 8?</small></div></div>
+    </div>
+  </aside>
+
+  <main style="min-width:0">
+    <h1>Лого <span>JustTalk</span></h1>
+    <p class="sub">Тыкай концепт — слева сразу видно, как он смотрится на иконке, на рабочем столе и в уведомлениях.</p>
+    <div class="grid" id="grid"></div>
+    <div class="opts">
+      <div class="row" id="bgRow"><span class="lbl">Фон иконки</span></div>
+      <div class="row" id="accRow"><span class="lbl">Акцент</span></div>
+      <button class="copy" id="copy">Скопировать выбор</button>
+      <div class="out" id="out"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Each concept draws its foreground on a 100x100 grid; A = accent, F = light ink, B = background (for cut-outs).
+const C = [
+  {id:"capsule", name:"Капсула", note:"Текущая: пузырь со срезанным углом",
+   svg:(A,F,B)=>`<path fill="${A}" d="M44 28h14a22 22 0 0 1 0 44H24V50a22 22 0 0 1 20-22z"/>
+     <g fill="${F}"><circle cx="40" cy="50" r="4"/><circle cx="51" cy="50" r="4"/><circle cx="62" cy="50" r="4"/></g>`},
+  {id:"mono", name:"JT монограмма", note:"Шляпка T переходит в крючок J",
+   svg:(A,F,B)=>`<rect x="22" y="22" width="56" height="14" rx="7" fill="${F}"/>
+     <path d="M50 30v30a14 14 0 0 1-28 0" fill="none" stroke="${F}" stroke-width="14" stroke-linecap="round"/>
+     <circle cx="72" cy="68" r="8" fill="${A}"/>`},
+  {id:"duo", name:"Двое", note:"Два пузыря — разговор кентов",
+   svg:(A,F,B)=>`<rect x="14" y="22" width="50" height="36" rx="18" fill="${A}"/>
+     <rect x="36" y="42" width="50" height="36" rx="18" fill="${F}" stroke="${B}" stroke-width="6"/>`},
+  {id:"pin", name:"Пин-пузырь", note:"Чат + споты: метка карты с точками",
+   svg:(A,F,B)=>`<path fill="${A}" d="M50 14a28 28 0 0 1 28 28c0 21-28 44-28 44S22 63 22 42a28 28 0 0 1 28-28z"/>
+     <g fill="${F}"><circle cx="39" cy="42" r="4"/><circle cx="50" cy="42" r="4"/><circle cx="61" cy="42" r="4"/></g>`},
+  {id:"ring", name:"Кольцо", note:"Как обводка аватарки, с хвостиком",
+   svg:(A,F,B)=>`<circle cx="52" cy="48" r="25" fill="none" stroke="${A}" stroke-width="12"/>
+     <path fill="${A}" d="M28 58l-8 24 22-10z"/>
+     <circle cx="52" cy="48" r="8" fill="${F}"/>`},
+  {id:"voice", name:"Голос", note:"Капсула с волной голосового",
+   svg:(A,F,B)=>`<rect x="12" y="29" width="76" height="42" rx="21" fill="${A}"/>
+     <g fill="${F}"><rect x="30" y="45" width="6" height="10" rx="3"/><rect x="40" y="39" width="6" height="22" rx="3"/>
+     <rect x="50" y="34" width="6" height="32" rx="3"/><rect x="60" y="40" width="6" height="20" rx="3"/><rect x="70" y="45" width="6" height="10" rx="3"/></g>`},
+  {id:"eyes", name:"Глазки", note:"Пузырь-персонаж 👀, как в тизере",
+   svg:(A,F,B)=>`<path fill="${A}" d="M44 26h14a24 24 0 0 1 0 48H22V50a24 24 0 0 1 22-24z"/>
+     <g fill="${F}"><ellipse cx="44" cy="50" rx="6" ry="9"/><ellipse cx="62" cy="50" rx="6" ry="9"/></g>
+     <g fill="${B}"><circle cx="46.5" cy="52" r="3"/><circle cx="64.5" cy="52" r="3"/></g>`},
+  {id:"slash", name:"Срез", note:"Буква J из капсулы, срезанной наискось",
+   svg:(A,F,B)=>`<path fill="${F}" d="M56 18h14v40a26 26 0 0 1-52 0v-4h14v4a12 12 0 0 0 24 0z"/>
+     <path fill="${A}" d="M56 18h14l-14 14z"/>
+     <circle cx="80" cy="76" r="7" fill="${A}"/>`},
+];
+const BGS = [
+  {id:"black", name:"Чёрный", fill:"#000000", ink:"#ffffff"},
+  {id:"accent", name:"Акцентный", fill:null, ink:"#ffffff"},
+  {id:"glow", name:"Свечение", fill:"glow", ink:"#ffffff"},
+  {id:"white", name:"Белый", fill:"#ffffff", ink:"#0b0b10"},
+];
+const ACCS = [["Фиолетовый","#7366f0"],["Лайм","#b7f04a"],["Розовый","#ff5fa2"],["Голубой","#4fb3ff"],["Оранжевый","#ff8a3d"]];
+
+let st = {c:"capsule", bg:"black", acc:"#7366f0"};
+try { Object.assign(st, JSON.parse(localStorage.getItem("jt-logo") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("jt-logo", JSON.stringify(st)); } catch (e) {} };
+
+let uid = 0;
+function icon(cid, bgId = st.bg, acc = st.acc) {
+  const c = C.find(x => x.id === cid), bg = BGS.find(x => x.id === bgId);
+  const g = "g" + (uid++);
+  let back, B, A = acc, F = bg.ink;
+  if (bg.fill === "glow") {
+    // accent ground with a light spot top-left and a shade bottom-right
+    back = `<defs><radialGradient id="${g}" cx="25%" cy="15%" r="110%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs><rect width="100" height="100" fill="${acc}"/><rect width="100" height="100" fill="url(#${g})"/>`;
+    // on a coloured ground the accent shape turns white and the ink turns dark so both stay visible
+    B = acc; A = "#ffffff"; F = "#0b0b14";
+  } else if (bg.fill === null) {
+    back = `<rect width="100" height="100" fill="${acc}"/>`; B = acc; A = "#ffffff"; F = "#0b0b14";
+  } else {
+    back = `<rect width="100" height="100" fill="${bg.fill}"/>`; B = bg.fill;
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${back}<g transform="translate(50 50) scale(.86) translate(-50 -50)">${c.svg(A, F, B)}</g></svg>`;
+}
+function monoIcon(cid) {
+  const c = C.find(x => x.id === cid);
+  return `<svg viewBox="0 0 100 100">${c.svg("currentColor", "#1a1a20", "#1a1a20")}</svg>`;
+}
+
+const $ = id => document.getElementById(id);
+function render() {
+  document.documentElement.style.setProperty("--acc", st.acc);
+  $("big").innerHTML = icon(st.c);
+  $("lockIcon").innerHTML = icon(st.c);
+  $("homeIcon").innerHTML = icon(st.c);
+  $("mono").innerHTML = monoIcon(st.c);
+  $("sizes").innerHTML = [64, 48, 32, 24].map(s => `<span class="icon" style="width:${s}px;height:${s}px">${icon(st.c)}</span>`).join("");
+  $("grid").innerHTML = C.map(c => `<button class="card" data-c="${c.id}" aria-pressed="${c.id === st.c}">
+      <span class="icon">${icon(c.id)}</span><b>${c.name}</b><small>${c.note}</small></button>`).join("");
+  $("bgRow").innerHTML = `<span class="lbl">Фон иконки</span>` + BGS.map(b => `<button class="pill" data-bg="${b.id}" aria-pressed="${b.id === st.bg}">${b.name}</button>`).join("");
+  $("accRow").innerHTML = `<span class="lbl">Акцент</span>` + ACCS.map(([n, v]) => `<button class="pill" data-acc="${v}" aria-pressed="${v === st.acc}"><span class="sw" style="background:${v}"></span>${n}</button>`).join("");
+  save();
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-c],[data-bg],[data-acc]");
+  if (!t) return;
+  if (t.dataset.c) st.c = t.dataset.c;
+  if (t.dataset.bg) st.bg = t.dataset.bg;
+  if (t.dataset.acc) st.acc = t.dataset.acc;
+  render();
+});
+$("copy").addEventListener("click", () => {
+  const c = C.find(x => x.id === st.c), b = BGS.find(x => x.id === st.bg), a = ACCS.find(x => x[1] === st.acc);
+  const text = `Лого JT: ${c.name} (${c.id}), фон ${b.name.toLowerCase()}, акцент ${a ? a[0].toLowerCase() : st.acc} ${st.acc}`;
+  navigator.clipboard.writeText(text).then(() => $("out").textContent = "Скопировано: " + text)
+    .catch(() => $("out").textContent = text);
+});
+render();
+</script>

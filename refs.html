@@ -1,0 +1,1367 @@
+<title>JustTalk: выбор стиля</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: control groups on the left, live phone pinned on the right; calm mono palette taken from the user's TG refs */
+:root {
+  --bg: #f1f1f3;
+  --surface: #ffffff;
+  --ink: #141416;
+  --muted: #6c6c74;
+  --line: #dcdce1;
+  --pick: #6b5ff0;
+  --pick-soft: #ebe9ff;
+  --f-ui: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0e10; --surface: #18181b; --ink: #f2f2f4; --muted: #9a9aa3; --line: #2a2a2f;
+    --pick: #8d84ff; --pick-soft: #24213f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0e10; --surface: #18181b; --ink: #f2f2f4; --muted: #9a9aa3; --line: #2a2a2f;
+  --pick: #8d84ff; --pick-soft: #24213f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 32px 100px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+h1, h2 { margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(26px, 4.5vw, 40px); line-height: 1.1; letter-spacing: -0.02em; }
+h2 { font-size: 15px; font-weight: 600; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 64ch; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start; }
+.panels { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px 28px; min-width: 0; align-content: start; }
+.group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.group .hint { font-size: 13px; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 500 13px var(--f-ui); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.seg button:hover { border-color: var(--muted); }
+.seg button:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(127,127,127,.4); }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.btn { font: 600 13px var(--f-ui); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 9px 14px; border-radius: 10px; cursor: pointer; }
+.btn:hover { border-color: var(--ink); }
+.btn:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px; }
+.summary { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-family: var(--f-mono); font-size: 12px; white-space: pre-wrap; margin: 0; }
+.refs { font-size: 13px; color: var(--muted); }
+
+/* ===== phone ===== */
+.phone { width: 340px; max-width: 100%; height: 720px; border-radius: 50px; padding: 10px; background: #050506; box-shadow: 0 0 0 1px #2a2a2e, 0 24px 60px rgba(0,0,0,.28); }
+.scr { position: relative; height: 100%; border-radius: 41px; overflow: hidden; background: var(--s-bg); color: var(--s-ink); font-family: var(--s-font); font-size: 14px; }
+.scr[data-pal="black"]    { --s-bg: #000000; --s-1: #131315; --s-2: #1f1f22; --s-ink: #f4f4f6; --s-mut: #8b8b93; --s-line: rgba(255,255,255,.07); --s-glass: rgba(28,28,32,.55); --s-glass-b: rgba(255,255,255,.12); }
+.scr[data-pal="graphite"] { --s-bg: #17171a; --s-1: #222226; --s-2: #2d2d32; --s-ink: #f2f2f4; --s-mut: #95959e; --s-line: rgba(255,255,255,.07); --s-glass: rgba(40,40,46,.55); --s-glass-b: rgba(255,255,255,.12); }
+.scr[data-pal="light"]    { --s-bg: #f5f5f7; --s-1: #ffffff; --s-2: #ececf0; --s-ink: #111114; --s-mut: #74747c; --s-line: rgba(0,0,0,.06); --s-glass: rgba(255,255,255,.6); --s-glass-b: rgba(0,0,0,.08); }
+.scr[data-bg="grid"] { background-image: linear-gradient(var(--s-line) 1px, transparent 1px), linear-gradient(90deg, var(--s-line) 1px, transparent 1px); background-size: 22px 22px; }
+.view { position: absolute; inset: 0; padding: 64px 20px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.ibtn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--s-ink); background: var(--s-1); border: 0; flex-shrink: 0; }
+.ibtn svg, .tab svg { width: 20px; height: 20px; }
+.search { height: 38px; border-radius: 12px; background: var(--s-1); display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--s-mut); }
+.search svg { width: 16px; height: 16px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chip { padding: 5px 12px; border-radius: 99px; font-size: 12px; background: var(--s-1); color: var(--s-mut); white-space: nowrap; }
+.chip.on { background: var(--s-acc); color: var(--s-on); }
+.stories { display: flex; gap: 12px; }
+.story { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--s-mut); }
+.ava { border-radius: 50%; display: grid; place-items: center; font-weight: 600; color: var(--s-ink); background: var(--s-2); position: relative; flex-shrink: 0; }
+.ava.ring { box-shadow: 0 0 0 2px var(--s-bg), 0 0 0 3.5px var(--s-acc); }
+.ava .on { position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: 50%; background: #34c46a; border: 2px solid var(--s-bg); }
+.list { display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 12px; padding: 9px 4px; }
+.item .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.item .top, .item .bot { display: flex; align-items: center; gap: 8px; }
+.item .name { flex: 1; font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item .time { font-size: 11px; color: var(--s-mut); }
+.item .last { flex: 1; font-size: 13px; color: var(--s-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--s-acc); color: var(--s-on); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.udot { width: 8px; height: 8px; border-radius: 50%; background: var(--s-acc); }
+.checks { color: var(--s-mut); display: inline-flex; }
+.checks.read { color: var(--s-acc); }
+.tk { width: 16px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.msg .t { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
+.msg .t .tk { width: 14px; height: 10px; }
+.scr[data-cards="pills"] .list, .scr[data-cards="tint"] .list { gap: 8px; }
+.scr[data-cards="pills"] .item, .scr[data-cards="tint"] .item { background: var(--s-1); border-radius: 26px; padding: 9px 14px 9px 9px; }
+.scr[data-cards="tint"] .item.unread { background: color-mix(in srgb, var(--s-acc) 20%, var(--s-1)); }
+.section { font-size: 12px; color: var(--s-mut); margin-top: 2px; }
+
+/* tab bar */
+.tabs { position: absolute; left: 50%; transform: translateX(-50%); bottom: 22px; height: 60px; border-radius: 30px; display: flex; align-items: center; gap: 4px; padding: 0 6px; z-index: 5; }
+.scr[data-tbs="glass"] .tabs { background: var(--s-glass); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); border: 1px solid var(--s-glass-b); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.scr[data-tbs="white"] .tabs { background: #ffffff; --t-ink: #111114; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.scr[data-tbs="solid"] .tabs { background: var(--s-1); border: 1px solid var(--s-line); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.tab { height: 48px; min-width: 52px; border-radius: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--t-ink, var(--s-ink)); font-size: 13px; font-weight: 600; padding: 0 12px; }
+.tab.on { background: var(--s-acc); color: var(--s-on); }
+.scr[data-tab="circle"] .tab.on { width: 48px; min-width: 48px; padding: 0; }
+.scr[data-tab="center"] .tabs { overflow: visible; }
+.scr[data-tab="center"] .tab.on { width: 58px; height: 58px; min-width: 58px; border-radius: 50%; padding: 0; box-shadow: 0 0 0 5px var(--s-bg); }
+.tab.new { background: var(--s-acc); color: var(--s-on); padding: 0 20px; }
+
+/* chat */
+.chead { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--s-line); }
+.chead .who { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.chead .who b { font-size: 15px; }
+.chead .who span { font-size: 11px; color: var(--s-mut); display: flex; align-items: center; gap: 5px; }
+.chead .who span i { width: 7px; height: 7px; border-radius: 50%; background: #34c46a; }
+.plain { background: transparent; border: 0; color: var(--s-ink); padding: 4px; display: grid; place-items: center; }
+.plain svg { width: 20px; height: 20px; }
+.feed { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-bottom: 76px; scrollbar-width: none; }
+.feed > :first-child { margin-top: auto; }
+.view.scroll { overflow-y: auto; padding-bottom: 110px; scrollbar-width: none; }
+.feed::-webkit-scrollbar, .view.scroll::-webkit-scrollbar { display: none; }
+.scr [data-go], .scr [data-act], .scr [data-set], .scr [data-slide] { cursor: pointer; }
+.scr [data-slide] { touch-action: none; }
+.field input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: var(--s-ink); font: inherit; font-size: 14px; }
+.field input::placeholder { color: var(--s-mut); }
+.inp input { background: transparent; border: 0; outline: none; color: var(--s-ink); font: inherit; font-size: 15px; padding: 0; width: 100%; }
+.inp input::placeholder { color: var(--s-mut); opacity: .7; }
+.send { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--s-acc); color: var(--s-on); flex: none !important; }
+.send svg { width: 16px !important; height: 16px !important; color: inherit !important; }
+.toast { position: absolute; left: 50%; top: 54px; transform: translateX(-50%); z-index: 20; background: var(--s-ink); color: var(--s-bg); padding: 9px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.35); animation: drop .25s ease-out; }
+@keyframes drop { from { opacity: 0; transform: translate(-50%, -8px); } }
+.typing { font-style: normal; color: var(--s-acc); }
+.react.liked { background: color-mix(in srgb, #ff4d6d 22%, var(--s-2)); }
+.wave.playing i { animation: wv .7s ease-in-out infinite alternate; }
+.wave.playing i:nth-child(2n) { animation-delay: .2s; }
+.wave.playing i:nth-child(3n) { animation-delay: .4s; }
+@keyframes wv { to { transform: scaleY(.4); } }
+.pin.dim { opacity: .25; }
+.tgl { width: 40px; height: 24px; border-radius: 12px; background: var(--s-2); position: relative; flex: none !important; transition: background .2s; }
+.tgl b { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--s-mut); transition: left .2s, background .2s; }
+.tgl.on { background: var(--s-acc); }
+.tgl.on b { left: 19px; background: var(--s-on); }
+.msg { max-width: 78%; padding: 8px 12px; line-height: 1.35; position: relative; border-radius: var(--s-r); }
+.msg .t { display: block; text-align: right; font-size: 10px; margin-top: 2px; opacity: .65; }
+.msg.them { align-self: flex-start; background: var(--s-1); }
+.msg.me { align-self: flex-end; }
+.scr[data-bub="gray"] .msg.me { background: var(--s-2); }
+.scr[data-bub="accent"] .msg.me { background: var(--s-acc); color: var(--s-on); }
+.scr[data-bub="outline"] .msg.me { background: transparent; box-shadow: inset 0 0 0 1.5px var(--s-acc); }
+.scr[data-tail="yes"] .msg.them.last { border-bottom-left-radius: 5px; }
+.scr[data-tail="yes"] .msg.me.last { border-bottom-right-radius: 5px; }
+.gap { margin-top: 6px; }
+.photo { width: 190px; height: 120px; border-radius: calc(var(--s-r) - 6px); background: linear-gradient(135deg, var(--s-2), color-mix(in srgb, var(--s-acc) 35%, var(--s-2))); margin-bottom: 4px; display: grid; place-items: center; color: var(--s-mut); font-size: 11px; }
+.react { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; border-radius: 99px; background: var(--s-2); font-size: 11px; }
+.react svg { width: 11px; height: 11px; color: #ff4d6d; }
+.voice { display: flex; align-items: center; gap: 8px; }
+.play { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--s-acc); color: var(--s-on); flex-shrink: 0; }
+.scr[data-bub="accent"] .msg.me .play { background: var(--s-on); color: var(--s-acc); }
+.play svg { width: 12px; height: 12px; }
+.wave { display: flex; align-items: center; gap: 2px; height: 24px; }
+.wave i { width: 2.5px; border-radius: 2px; background: currentColor; opacity: .75; }
+.comp { position: absolute; left: 12px; right: 12px; bottom: 22px; display: flex; align-items: center; gap: 8px; z-index: 5; }
+.comp .field { flex: 1; height: 44px; border-radius: 22px; display: flex; align-items: center; padding: 0 8px 0 14px; color: var(--s-mut); gap: 8px; }
+.scr[data-tbs="glass"] .comp .field, .scr[data-tbs="glass"] .comp .ibtn { background: var(--s-glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--s-glass-b); }
+.scr:not([data-tbs="glass"]) .comp .field { background: var(--s-1); }
+.comp .ibtn { width: 44px; height: 44px; }
+.comp .field span { flex: 1; }
+.comp .field svg { width: 20px; height: 20px; color: var(--s-ink); }
+
+/* profile */
+.pro { align-items: center; text-align: center; gap: 4px; padding-top: 6px; }
+.pro .nm { font-size: 20px; font-weight: 700; margin-top: 8px; }
+.pro .un { color: var(--s-acc); font-size: 13px; }
+.pro .ab { color: var(--s-mut); font-size: 13px; max-width: 30ch; }
+.cardgrp { width: 100%; background: var(--s-1); border-radius: 18px; padding: 4px 0; text-align: left; }
+.cardgrp div { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 14px; }
+.cardgrp div + div { border-top: 1px solid var(--s-line); }
+.cardgrp i { width: 26px; height: 26px; border-radius: 8px; background: color-mix(in srgb, var(--s-acc) 22%, var(--s-2)); display: grid; place-items: center; color: var(--s-acc); font-style: normal; }
+.cardgrp i svg { width: 15px; height: 15px; }
+.cardgrp span { flex: 1; }
+.cardgrp em { font-style: normal; color: var(--s-mut); font-size: 13px; }
+
+/* map */
+.mapbg { position: absolute; inset: 0; background: var(--s-1); }
+.mapbg svg { width: 100%; height: 100%; display: block; }
+.mapbg .road { stroke: var(--s-2); stroke-width: 14; fill: none; stroke-linecap: round; }
+.mapbg .road.thin { stroke-width: 7; }
+.mapbg .park { fill: color-mix(in srgb, #34c46a 14%, var(--s-1)); }
+.mapbg .river { stroke: color-mix(in srgb, #4d7cff 22%, var(--s-1)); stroke-width: 26; fill: none; }
+.pin { position: absolute; width: 34px; height: 34px; margin: -34px 0 0 -17px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); background: var(--s-ink); color: var(--s-bg); display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+.pin svg { width: 16px; height: 16px; transform: rotate(45deg); }
+.pin.sel { background: var(--s-acc); color: var(--s-on); width: 44px; height: 44px; margin: -44px 0 0 -22px; }
+.me-dot { position: absolute; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: #4d7cff; box-shadow: 0 0 0 4px rgba(77,124,255,.25), 0 0 0 2px #fff inset; }
+.floaty { background: var(--s-glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.sheet { position: absolute; left: 12px; right: 12px; bottom: 96px; padding: 10px; border-radius: 24px; background: var(--s-bg); box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 4; }
+.stack { display: flex; }
+.stack .ava + .ava { margin-left: -8px; }
+/* music */
+.now { background: var(--s-1); border-radius: 22px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.cover { border-radius: 12px; flex-shrink: 0; background: linear-gradient(135deg, var(--s-2), color-mix(in srgb, var(--s-acc) 45%, var(--s-2))); }
+.score { font-size: 30px; font-weight: 700; color: var(--s-acc); font-variant-numeric: tabular-nums; }
+.crit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
+.crit div { display: grid; grid-template-columns: 60px minmax(0, 1fr) 12px; align-items: center; gap: 6px; font-size: 12px; color: var(--s-mut); }
+.crit b { color: var(--s-ink); text-align: right; }
+.bar { height: 5px; border-radius: 3px; background: var(--s-2); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--s-acc); border-radius: 3px; }
+.rank { width: 16px; font-size: 13px; color: var(--s-mut); text-align: center; font-variant-numeric: tabular-nums; }
+.item b { font-variant-numeric: tabular-nums; }
+.fab { position: absolute; right: 18px; width: 52px; height: 52px; border-radius: 50%; background: var(--s-acc); color: var(--s-on); display: grid; place-items: center; box-shadow: 0 8px 20px rgba(0,0,0,.35); z-index: 4; }
+.fab svg { width: 24px; height: 24px; }
+/* forms, segmented controls */
+.segs { display: flex; background: var(--s-1); border-radius: 12px; padding: 3px; gap: 3px; }
+.sg { flex: 1; text-align: center; padding: 6px 8px; border-radius: 9px; font-size: 12px; color: var(--s-mut); white-space: nowrap; }
+.sg.on { background: var(--s-2); color: var(--s-ink); font-weight: 600; }
+.twoseg { display: flex; gap: 8px; }
+.twoseg .segs:first-child { flex: 1.5; }
+.twoseg .segs { flex: 1; }
+.note { font-size: 11px; color: var(--s-mut); }
+.inp { background: var(--s-1); border-radius: 14px; padding: 7px 14px; display: flex; flex-direction: column; font-size: 15px; flex-shrink: 0; }
+.inp span { font-size: 11px; color: var(--s-mut); }
+.lbl2 { font-size: 12px; color: var(--s-mut); margin-bottom: -4px; }
+.chips.multi { flex-wrap: wrap; }
+.view > * { flex-shrink: 0; }
+.minimap { position: relative; height: 112px; border-radius: 18px; overflow: hidden; flex-shrink: 0; }
+.photos { display: flex; gap: 8px; }
+.photos > * { width: 52px; height: 52px; border-radius: 14px; }
+.addph { border: 1.5px dashed var(--s-mut); display: grid; place-items: center; color: var(--s-mut); }
+.addph svg { width: 20px; height: 20px; }
+.cta { margin-top: auto; margin-bottom: 26px; height: 48px; border-radius: 24px; background: var(--s-acc); color: var(--s-on); display: grid; place-items: center; font-weight: 600; flex-shrink: 0; }
+/* rating rows */
+.rows { display: flex; flex-direction: column; gap: 2px; }
+.crow { display: grid; grid-template-columns: 104px minmax(0, 1fr) 22px; align-items: center; gap: 10px; height: 22px; font-size: 12.5px; }
+.rows.shared .crow { grid-template-columns: 96px minmax(0, 1fr) 22px 30px; }
+.crow .cn.skip { color: var(--s-mut); text-decoration: line-through; }
+.crow .cv { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.crow .ck { text-align: right; color: var(--s-mut); font-variant-numeric: tabular-nums; }
+.crow.head { height: 14px; font-size: 10px; color: var(--s-mut); }
+.crow.head .cv { font-weight: 400; }
+.slider { position: relative; height: 4px; border-radius: 2px; background: var(--s-2); margin: 0 8px; }
+.slider i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--s-acc); border-radius: 2px; }
+.slider b { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: var(--s-ink); }
+.rows.simple { gap: 6px; }
+.rows.simple .crow { height: 44px; font-size: 14px; grid-template-columns: 132px minmax(0, 1fr) 26px; }
+.rows.simple.shared .crow { grid-template-columns: 128px minmax(0, 1fr) 22px 30px; }
+.rows.simple .crow.head { height: 14px; font-size: 10px; }
+.rows.simple .slider { height: 8px; border-radius: 4px; margin: 0 12px; }
+.rows.simple .slider b { width: 22px; height: 22px; margin: -11px; }
+/* ai bot */
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --ang: 360deg; } }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.orb { position: relative; display: inline-grid; place-items: center; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(from var(--ang), var(--s-acc), transparent 40%, var(--s-acc) 60%, transparent 90%, var(--s-acc));
+  animation: spin 5s linear infinite; }
+.orb-core { position: absolute; inset: 2px; border-radius: 50%; background: var(--s-1); display: grid; place-items: center; color: var(--s-acc); }
+.orb-core svg { width: 72%; height: 72%; }
+.orb .on { position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: 50%; background: #34c46a; border: 2px solid var(--s-bg); }
+.aiblock { display: flex; flex-direction: column; gap: 8px; max-width: 100%; }
+.aiblock p { margin: 0; line-height: 1.45; }
+.aitrail { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--s-mut); padding: 3px 9px; border-radius: 99px; border: 1px solid var(--s-line); background: var(--s-1); }
+.tool svg { width: 11px; height: 11px; color: var(--s-acc); }
+.acard { background: var(--s-1); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid color-mix(in srgb, var(--s-acc) 35%, transparent); }
+.aibtn { padding: 7px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--s-2); }
+.aibtn.on { background: var(--s-acc); color: var(--s-on); }
+.thinking { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.thinking svg { width: 15px; height: 15px; color: var(--s-acc); }
+.thinking span { background: linear-gradient(90deg, var(--s-mut) 0%, var(--s-ink) 50%, var(--s-mut) 100%) 0 0 / 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1.8s linear infinite; }
+.aifield { border: 1.5px solid transparent;
+  background: linear-gradient(var(--s-1), var(--s-1)) padding-box, conic-gradient(from var(--ang), var(--s-acc), transparent 35%, transparent 65%, var(--s-acc)) border-box !important;
+  animation: spin 4s linear infinite; }
+.aicard { align-self: stretch; background: var(--s-1); border-radius: 20px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  border: 1px solid color-mix(in srgb, var(--s-acc) 35%, transparent); }
+.aihead { display: flex; align-items: center; gap: 8px; }
+.aihead .note { margin-left: auto; }
+.split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.split div { background: var(--s-2); border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; font-size: 11px; color: var(--s-mut); }
+.split b { color: var(--s-ink); font-size: 15px; font-variant-numeric: tabular-nums; }
+.mention { color: var(--s-acc); font-weight: 600; }
+.scr[data-bub="accent"] .mention { color: inherit; text-decoration: underline; }
+.sugg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; margin-top: 14px; text-align: left; }
+.sugg div { background: var(--s-1); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.sugg i { color: var(--s-acc); margin-bottom: 4px; }
+.sugg i svg { width: 18px; height: 18px; }
+.sugg b { font-size: 14px; }
+.sugg span { font-size: 11px; color: var(--s-mut); line-height: 1.35; }
+@media (prefers-reduced-motion: reduce) { .orb, .aifield, .thinking span { animation: none; } }
+
+/* layers + screen transitions */
+.layer { position: absolute; inset: 0; background: inherit; overflow: hidden; }
+.layer.in-right { animation: inR .32s cubic-bezier(.2,.8,.2,1); }
+.layer.out-right { animation: outL .32s cubic-bezier(.2,.8,.2,1) forwards; }
+.layer.in-left { animation: inL .32s cubic-bezier(.2,.8,.2,1); }
+.layer.out-left { animation: outR .32s cubic-bezier(.2,.8,.2,1) forwards; }
+.layer.in-push { animation: inR .32s cubic-bezier(.2,.8,.2,1); z-index: 2; box-shadow: -10px 0 30px rgba(0,0,0,.3); }
+.layer.out-push { animation: outPush .32s cubic-bezier(.2,.8,.2,1) forwards; }
+.layer.in-pop { animation: inPop .32s cubic-bezier(.2,.8,.2,1); }
+.layer.out-pop { animation: outR .32s cubic-bezier(.2,.8,.2,1) forwards; z-index: 2; box-shadow: -10px 0 30px rgba(0,0,0,.3); }
+.layer.in-fade { animation: fadeIn .25s ease-out; z-index: 2; }
+.layer.out-fade { animation: fadeOut .25s ease-out forwards; }
+@keyframes inR { from { transform: translateX(100%); } }
+@keyframes inL { from { transform: translateX(-100%); } }
+@keyframes outL { to { transform: translateX(-100%); } }
+@keyframes outR { to { transform: translateX(100%); } }
+@keyframes outPush { to { transform: translateX(-28%); filter: brightness(.6); } }
+@keyframes inPop { from { transform: translateX(-28%); filter: brightness(.6); } }
+@keyframes fadeIn { from { opacity: 0; transform: scale(.98); } }
+@keyframes fadeOut { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .layer { animation: none !important; } }
+/* more controls */
+.search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: var(--s-ink); font: inherit; font-size: 14px; }
+.search input::placeholder { color: var(--s-mut); }
+.empty { text-align: center; color: var(--s-mut); padding: 30px 0; font-size: 13px; }
+.check { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--s-mut); display: grid; place-items: center; color: transparent; transition: background .15s, border-color .15s; }
+.check svg { width: 14px; height: 14px; }
+.check.on { background: var(--s-acc); border-color: var(--s-acc); color: var(--s-on); }
+.cta.small { margin: 0; height: 42px; font-size: 14px; flex: 1; }
+.cta.ghost { background: var(--s-1); color: var(--s-ink); }
+.cta.off { opacity: .35; }
+.logout { color: #ff5a5f; font-size: 14px; padding: 12px; margin-top: 4px; }
+.note.warn { color: #ff6b6b; margin-top: -4px; }
+.note.ok { color: #34c46a; margin-top: -4px; }
+.swrow { display: flex; gap: 10px; }
+.swp { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--s-bg); box-shadow: 0 0 0 1px var(--s-line); }
+.swp.on { box-shadow: 0 0 0 2px var(--s-ink); }
+.cardgrp small { display: block; font-size: 11px; color: var(--s-mut); }
+.cardgrp [data-act], .cardgrp [data-go] { transition: background .15s; }
+.cardgrp [data-act]:active, .cardgrp [data-go]:active { background: var(--s-2); }
+.cmt { font-size: 12px; color: var(--s-mut); font-style: italic; }
+.call { align-items: center; text-align: center; background: linear-gradient(180deg, color-mix(in srgb, var(--s-acc) 25%, var(--s-bg)), var(--s-bg) 70%); }
+.callbtns { margin-top: auto; margin-bottom: 40px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.cbtn { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 10px; color: var(--s-mut); }
+.cbtn svg { width: 54px; height: 54px; padding: 15px; border-radius: 50%; background: var(--s-2); color: var(--s-ink); box-sizing: border-box; transition: background .2s, color .2s; }
+.cbtn.on svg { background: var(--s-ink); color: var(--s-bg); }
+.cbtn.off svg { background: #ff5a5f; color: #fff; }
+.cbtn.end svg { background: #ff3b30; color: #fff; }
+.selfcam { position: absolute; right: 18px; top: 60px; width: 84px; height: 120px; border-radius: 16px; background: var(--s-2); display: grid; place-items: center; font-size: 12px; color: var(--s-mut); animation: fadeIn .3s; }
+.story-v { padding-top: 54px; }
+.sbars { display: flex; gap: 4px; }
+.sbars span { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
+.sbars i { display: block; height: 100%; width: 0; background: #fff; }
+.sbars i.full { width: 100%; }
+.sbars i.run { animation: sbar 4s linear forwards; }
+@keyframes sbar { to { width: 100%; } }
+.stext { margin-top: 40%; font-size: 26px; font-weight: 700; line-height: 1.2; text-wrap: balance; }
+.ovl { position: absolute; inset: 0; z-index: 15; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; }
+.ovl.fresh { animation: fadeIn .2s; }
+.bsheet { width: 100%; background: var(--s-1); border-radius: 28px 28px 0 0; padding: 10px 18px 34px; display: flex; flex-direction: column; gap: 14px; }
+.ovl.fresh .bsheet { animation: sheetUp .28s cubic-bezier(.2,.8,.2,1); }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+.grab { align-self: center; width: 40px; height: 4px; border-radius: 2px; background: var(--s-2); }
+.sgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sgrid span { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; }
+.sgrid i { width: 52px; height: 52px; border-radius: 16px; background: var(--s-2); display: grid; place-items: center; color: var(--s-acc); }
+.sgrid i svg { width: 22px; height: 22px; }
+.sgrid.rows1 { grid-template-columns: 1fr; gap: 6px; }
+.sgrid.rows1 span { flex-direction: row; font-size: 15px; gap: 12px; }
+.sgrid.rows1 i { width: auto; height: auto; background: none; }
+/* simple rating: name + value on top, full-width slider below */
+.rows.simple .crow, .rows.simple.shared .crow { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "n v k" "s s s"; height: auto; row-gap: 12px; column-gap: 14px; padding: 6px 0; }
+.rows.simple .crow.head { display: none; }
+.rows.simple .cn { grid-area: n; }
+.rows.simple .slider { grid-area: s; }
+.rows.simple .cv { grid-area: v; font-size: 16px; }
+.rows.simple .ck { grid-area: k; }
+.rows.simple .ck::before { content: "кенты "; font-size: 11px; }
+/* top & mine */
+.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
+.pod { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.pod .cover { width: 100%; aspect-ratio: 1; position: relative; }
+.pod .pl { font-size: 11px; color: var(--s-mut); }
+.medal { position: absolute; left: 6px; top: 6px; width: 22px; height: 22px; border-radius: 50%; background: var(--s-bg); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.tiles3, .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tile { background: var(--s-1); border-radius: 16px; padding: 8px 12px; display: flex; flex-direction: column; }
+.tile b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 11px; color: var(--s-mut); }
+.gcell { position: relative; aspect-ratio: 1; border-radius: 14px; }
+.gcell .sc { position: absolute; right: 6px; top: 6px; padding: 1px 7px; border-radius: 99px; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; font-weight: 700; }
+.gcell .st { position: absolute; left: 6px; top: 5px; color: #ffd36b; }
+.gcell .st svg { width: 14px; height: 14px; }
+
+@media (max-width: 880px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; order: -1; }
+}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="eyebrow">JustTalk · JT · стиль по рефам</span>
+    <h1>Собираем вид JustTalk</h1>
+    <p class="lede">Сделано по твоим рефам из Telegram: тёмный спокойный фон, один акцентный цвет, плавающая панель вкладок, карточки-таблетки, истории и фильтры сверху. Переключай кнопками, телефон справа меняется сразу.</p>
+  </header>
+
+  <div class="layout">
+    <div class="panels" id="panels"></div>
+
+    <aside class="rail">
+      <div class="phone"><div class="scr" id="scr"></div></div>
+      <pre class="summary" id="summary"></pre>
+      <button class="btn" type="button" id="copyBtn">Скопировать итог</button>
+    </aside>
+  </div>
+</div>
+
+<script>
+const I = {
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4A8 8 0 1 1 20 11.5z"/></svg>',
+  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  playI: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.5 12 21 12 21z"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg>',
+};
+
+// option groups: [key, title, hint, options[[id, label, extra]]]
+const GROUPS = [
+  ["screen", "Экран", "", [["list", "Список чатов"], ["chat", "Чат"], ["map", "Карта"], ["spot", "Новый спот"], ["music", "Музыка"], ["rate", "Оценка"], ["top", "Топ кентов"], ["mine", "Мои оценки"], ["ai", "ИИ-бот"], ["profile", "Профиль"]]],
+  ["aiMode", "Экран «ИИ-бот»", "", [["dm", "Личный чат"], ["group", "В общем чате"], ["empty", "Первый запуск"]]],
+  ["rateKind", "Экран «Оценка»: что оцениваем", "", [["track", "Трек"], ["album", "Альбом"]]],
+  ["rateMode", "Экран «Оценка»: режим", "Полный: 10 критериев из нашего MusicRater. Простой: вайб, бит, вокал, реиграбельность.", [["full", "Полный"], ["simple", "Простой"]]],
+  ["rateFor", "Экран «Оценка»: для кого", "", [["me", "Для себя"], ["shared", "Для кентов"]]],
+  ["pal", "Тема", "", [["black", "Чёрная"], ["graphite", "Графит"], ["light", "Светлая"]]],
+  ["acc", "Акцент", "Один цвет на всё: активная вкладка, непрочитанные, кнопки.", [
+    ["violet", "Фиолетовый", ["#7366f0", "#ffffff"]], ["lime", "Лайм", ["#c8f26b", "#111111"]],
+    ["orange", "Оранжевый", ["#ff7a3d", "#ffffff"]], ["blue", "Синий", ["#4d7cff", "#ffffff"]],
+    ["mono", "Без цвета", ["#f2f2f4", "#111111"]]]],
+  ["tab", "Панель вкладок", "Плавающая таблетка внизу, как на рефах.", [
+    ["circle", "Кружок"], ["expand", "Таблетка с подписью"], ["center", "Большая кнопка"], ["new", "Кнопка «Новый»"]]],
+  ["tbs", "Материал панели", "", [["glass", "Стекло"], ["white", "Белая"], ["solid", "Плотная"]]],
+  ["cards", "Карточки чатов", "", [["rows", "Обычный список"], ["pills", "Таблетки"], ["tint", "Таблетки, непрочитанные с цветом"]]],
+  ["unread", "Непрочитанные", "", [["badge", "Число"], ["dot", "Точка"]]],
+  ["top", "Над списком", "", [["both", "Истории + фильтры"], ["stories", "Только истории"], ["chips", "Только фильтры"], ["none", "Ничего"]]],
+  ["ring", "Обводка аватарки", "", [["yes", "Да"], ["no", "Нет"]]],
+  ["bub", "Свои сообщения", "", [["gray", "Серые"], ["accent", "Цвет акцента"], ["outline", "Контур"]]],
+  ["rad", "Скругление пузырей", "", [["18", "Обычное"], ["24", "Капсулы"], ["10", "Острое"]]],
+  ["tail", "Угол у последнего", "", [["yes", "Срезан"], ["no", "Нет"]]],
+  ["bg", "Фон", "", [["plain", "Однотонный"], ["grid", "Сетка"]]],
+  ["font", "Шрифт", "", [["Onest", "Onest"], ["Manrope", "Manrope"], ["Montserrat", "Montserrat"], ["Golos Text", "Golos"], ["Geologica", "Geologica"]]],
+];
+
+const KEY = "jt-style-v2";
+const PREVIEW_KEYS = ["screen", "rateKind", "rateMode", "rateFor", "aiMode"];
+let st = { aiMode: "dm", rateKind: "track", rateMode: "full", rateFor: "me", screen: "list",pal: "black", acc: "violet", tab: "circle", tbs: "glass", cards: "pills", unread: "badge", top: "both", ring: "yes", bub: "gray", rad: "18", tail: "yes", bg: "plain", font: "Onest" };
+try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+// sub-screens reachable only by taps open from the chat list after a reload
+if (!GROUPS[0][3].some(o => o[0] === st.screen)) st.screen = "list";
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+const $ = id => document.getElementById(id);
+const opt = (key, id) => GROUPS.find(g => g[0] === key)[3].find(o => o[0] === id);
+
+// build controls
+GROUPS.forEach(([key, title, hint, opts]) => {
+  const g = document.createElement("div");
+  g.className = "group";
+  g.innerHTML = `<h2>${title}</h2>${hint ? `<p class="hint">${hint}</p>` : ""}<div class="seg" role="group" aria-label="${title}"></div>`;
+  const seg = g.querySelector(".seg");
+  opts.forEach(([id, label, extra]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.id = `o-${key}-${id.replace(/\s/g, "_")}`;
+    b.innerHTML = (key === "acc" ? `<span class="dot" style="background:${extra[0]}"></span>` : "") +
+      `<span${key === "font" ? ` style="font-family:'${id}',sans-serif"` : ""}>${label}</span>`;
+    b.addEventListener("click", () => { if (key === "screen") return go(id); st[key] = id; save(); render(); });
+    seg.appendChild(b);
+  });
+  $("panels").appendChild(g);
+});
+
+const CHATS = [
+  ["Кенты", "К", "Дэн: беру колонку, будет музло", "18:06", 4, false, false, "group"],
+  ["Рома", "Р", "Там перила новые поставили", "18:02", 0, true, true, "dm"],
+  ["Споты", "С", "Макс добавил спот «Ступени у ДК»", "17:40", 2, false, false, "group"],
+  ["Дэн", "Д", "Оценил трек на 9", "16:15", 0, true, true, "dm"],
+  ["Музыка", "М", "Новый альбом, оцениваем", "14:02", 1, false, false, "group"],
+  ["Макс", "М", "Голосовое сообщение", "Вчера", 0, false, true, "dm"],
+  ["JT бот", "J", "Напомню в 19:00", "Вчера", 0, true, false, "bot"],
+];
+const KENTS = [["Рома", "Р", "roma_bmx", "Катаю с 2019, люблю перила"], ["Дэн", "Д", "den4ik", "Колонка всегда со мной"],
+  ["Макс", "М", "maks", "Снимаю видосы"], ["Лёха", "Л", "lexa", "Рампы > всё"], ["Саня", "С", "sanya", "Новенький"]];
+const STORIES = [["Рома", "Р", true, "Новые перила на ступенях"], ["Дэн", "Д", true, "Колонка заряжена, вечером катка"],
+  ["Макс", "М", false, "Смонтировал видос с прошлой недели"], ["Лёха", "Л", false, "Нашёл новую рампу у гаражей"], ["Саня", "С", true, "Первый раз на споте"]];
+const SPOTS = [
+  { name: "Ступени у ДК", x: 205, y: 190, desc: "Перила · 7 ступеней · гладкий асфальт", km: "1,2 км", who: ["Р", "Д"], types: ["Перила", "Ступени"] },
+  { name: "Парк Победы", x: 70, y: 250, desc: "Рампа · квотер · бетон", km: "2,4 км", who: ["М"], types: ["Рампы", "Парки"] },
+  { name: "Набережная", x: 250, y: 330, desc: "Длинные перила · плитка", km: "3,1 км", who: [], types: ["Перила"] },
+  { name: "Школа №12", x: 110, y: 400, desc: "Ступени · бордюры · вечером пусто", km: "0,8 км", who: ["Л"], types: ["Ступени"] },
+  { name: "Скейтпарк", x: 235, y: 470, desc: "Фанбокс · рампы · по выходным людно", km: "4,0 км", who: ["Р", "Д", "М"], types: ["Рампы", "Парки"] },
+];
+const REPLIES = ["Ахах, норм", "Давай, жду", "Ща буду", "Огонь", "Я в деле", "Кинь потом видос"];
+
+// criteria: [name, sample value (null = skipped), weight]; weights from MusicRater SPEC
+const TRACK_FULL = [["Вокал", 8, 1], ["Текст", null, 1], ["Мелодия", 7, 1], ["Бит/ритм", 9, 1], ["Структура", 7, .5],
+  ["Продакшн", 8, 1.5], ["Атмосфера", 8, 1], ["Вайб", 9, 2], ["Реиграбельность", 9, 1.5], ["Оригинальность", 7, 1]];
+const ALBUM_FULL = [["Цельность", 8, 1], ["Концепция", 7, 1], ["Порядок треков", 8, 1], ["Без проходняка", 6, 1], ["Звук", 9, 1],
+  ["Атмосфера", 9, 1], ["Пики", 9, 1], ["Реиграбельность", 8, 1], ["Оригинальность", 7, 1], ["Обложка", 8, 1]];
+const SIMPLE = [["Вайб", 9, 1], ["Бит", 9, 1], ["Вокал", 8, 1], ["Реиграбельность", 9, 1]];
+const CRIT = { track: TRACK_FULL, album: ALBUM_FULL, simple: SIMPLE };
+
+// everything the phone remembers between taps (resets on reload)
+const app = {
+  listFilter: "Все",
+  chatWith: ["Рома", "Р"],
+  kent: KENTS[0],
+  story: 0,
+  typing: false,
+  liked: false, playing: false,
+  chats: {
+    "Рома": [
+      { w: "them", k: "text", x: "Кто сегодня на споте?", t: "17:58" },
+      { w: "me", k: "text", x: "Я буду к семи", t: "17:59" },
+      { w: "me", k: "voice", t: "18:00" },
+      { w: "them", k: "photo", x: "Там перила новые поставили", t: "18:02" },
+    ],
+    "Дэн": [
+      { w: "them", k: "text", x: "Заценил трек, который скидывал?", t: "16:10" },
+      { w: "me", k: "text", x: "Ага, бит жёсткий", t: "16:12" },
+      { w: "them", k: "text", x: "Оценил трек на 9", t: "16:15" },
+    ],
+    "Макс": [
+      { w: "them", k: "text", x: "Видос с прошлой недели смонтировал", t: "Вчера" },
+      { w: "me", k: "voice", t: "Вчера", read: false },
+    ],
+    "Споты": [{ w: "them", a: "Макс", k: "text", x: "Добавил спот «Ступени у ДК»", t: "17:40" }],
+    "Музыка": [{ w: "them", a: "Дэн", k: "text", x: "Новый альбом, оцениваем", t: "14:02" }],
+  },
+  unread: { "Кенты": 4, "Споты": 2, "Музыка": 1 },
+  ai: [
+    { w: "me", x: "Собери всех на ступени в 7, кто свободен?" },
+    { w: "bot", trail: ["прочитал «Кенты»", "открыл карту"], x: "Рома и Дэн писали, что будут. Макс пока молчит. Сделал сбор, глянь:", card: "meet" },
+    { w: "me", x: "И подбери трек под катку" },
+    { w: "bot", trail: ["открыл топ кентов"], x: "Из вашего топа под катку лучше всего зайдёт вот это, у кентов 9.3:", card: "track" },
+  ],
+  group: [
+    { w: "them", a: "Рома", x: "Скидываемся за пиццу, кто сколько должен?", t: "21:10" },
+    { w: "me", x: "@бот посчитай, чек 1200, Макс ел меньше", t: "21:11" },
+    { w: "botcard", k: "split" },
+    { w: "them", a: "Дэн", x: "Норм, кидаю", t: "21:12" },
+  ],
+  sent: {}, remind: false, equal: false,
+  pin: 0, mapFilter: "Все",
+  spot: { types: ["Перила", "Ступени"], cover: "Гладкое", vis: "Все кенты", photos: 2, px: 50, py: 58 },
+  vals: Object.fromEntries(Object.entries(CRIT).map(([k, c]) => [k, c.map(x => x[1])])),
+  rateTitle: "", rateArtist: "", addKind: "track", addEdit: false,
+  topKind: "Треки", period: 1, mineKind: "Треки", mineByDate: false,
+  me: { name: "Имя", username: "username", about: "Пара слов о себе", color: 0 },
+  tg: { notif: true, online: true, read: true, geo: true, ratings: true, mic: true, speaker: false, cam: false },
+  profileVis: "Все кенты",
+  picked: [],
+  callWith: ["Рома", "Р"], callFrom: "chat",
+  sheet: null,
+  inputs: {},
+  toast: "",
+  anim: null,
+};
+
+const OCTO = (() => {
+  // pixel octopus mascot, 12x9 grid
+  const rows = ["....XXXX....", "..XXXXXXXX..", ".XXXXXXXXXX.", ".XXWEXXWEXX.", ".XXEEXXEEXX.", ".XCXXXXXXCX.", "XXXXXXXXXXXX", "DD.DD..DD.DD", "D..D....D..D"];
+  const col = { X: "#ff8ec4", D: "#e8649f", E: "#1b1420", W: "#ffffff", C: "#ff5c9d" };
+  let r = "";
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (col[c]) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${col[c]}"/>`; }));
+  return `<svg viewBox="-1 -1.5 14 12" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+})();
+const AVA_COLORS = ["var(--s-2)", "#3a3f7a", "#2f5b46", "#6b3550", "#6b5530"];
+const ava = (letter, size, online, bg) =>
+  `<div class="ava ${st.ring === "yes" ? "ring" : ""}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;${bg ? `background:${bg}` : ""}">${letter}${online ? '<span class="on"></span>' : ""}</div>`;
+// bot avatar: rotating accent ring around the octopus
+const orb = (size, online) => `<span class="orb" style="width:${size}px;height:${size}px"><span class="orb-core">${OCTO}</span>${online ? '<span class="on"></span>' : ""}</span>`;
+const SEND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+const PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+const MICOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M3 3l18 18"/></svg>';
+const SPEAK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 8a5 5 0 0 1 0 8"/></svg>';
+const HANG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 14c5-5 13-5 18 0l-2.5 2.5-3-1.5v-2.5a10 10 0 0 0-5 0V15l-3 1.5z"/></svg>';
+const now = () => new Date().toTimeString().slice(0, 5);
+// delivery ticks: one = sent, two overlapping = read
+const TICK1 = '<svg class="tk" viewBox="0 0 16 11" aria-label="отправлено"><path d="M1.5 5.8l3 3L11 2.2"/></svg>';
+const TICK2 = '<svg class="tk" viewBox="0 0 16 11" aria-label="прочитано"><path d="M1.5 5.8l3 3L11 2.2"/><path d="M7.4 8.4l.4.4L14.4 2.2"/></svg>';
+const tick = m => m.read === false ? TICK1 : TICK2;
+const esc = v => (v || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const field = (id, ph, cls = "") => `<span class="field ${cls}"><input id="${id}" placeholder="${ph}" value="${esc(app.inputs[id])}" autocomplete="off" aria-label="${ph}"><span class="send" data-act="send" data-for="${id}" role="button" aria-label="Отправить">${SEND}</span></span>`;
+const inp = (id, label, ph, value) => `<label class="inp"><span>${label}</span><input id="${id}" placeholder="${ph}" value="${esc(app.inputs[id] ?? value)}" autocomplete="off"></label>`;
+const back = to => `<span class="plain" data-go="${to}" aria-label="Назад">${I.back}</span>`;
+const togRow = (k, icon, label, hint) => `<div data-act="tog" data-k="${k}"><i>${icon}</i><span>${label}${hint ? `<small>${hint}</small>` : ""}</span><span class="tgl ${app.tg[k] ? "on" : ""}"><b></b></span></div>`;
+
+function tabsHtml(active) {
+  const T = [["chat", "Чаты", "list"], ["map", "Карта", "map"], ["music", "Музыка", "music"], ["user", "Профиль", "profile"]];
+  if (st.tab === "new") {
+    return `<nav class="tabs"><span class="tab" data-go="list">${I.chat}</span><span class="tab new" data-go="newChat">${I.plus}Новый</span><span class="tab" data-go="profile">${I.user}</span></nav>`;
+  }
+  return `<nav class="tabs">${T.map(([ic, label, go], i) => {
+    const on = i === active;
+    const text = st.tab === "expand" && on ? label : "";
+    return `<span class="tab ${on ? "on" : ""}" data-go="${go}">${I[ic]}${text}</span>`;
+  }).join("")}</nav>`;
+}
+
+function listView() {
+  const showStories = st.top === "both" || st.top === "stories";
+  const showChips = st.top === "both" || st.top === "chips";
+  const f = app.listFilter, q = (app.inputs.listSearch || "").toLowerCase();
+  const rows = CHATS.filter(c => (f === "Все" || (f === "Личные" && c[7] !== "group") || (f === "Группы" && c[7] === "group") || (f === "Непрочитанные" && c[4]))
+    && (!q || c[0].toLowerCase().includes(q) || c[2].toLowerCase().includes(q)));
+  return `<div class="view scroll">
+    <div class="row-between"><span class="title">Чаты</span><span style="display:flex;gap:8px"><span class="ibtn ai-ibtn" data-go="ai" data-mode="empty" aria-label="ИИ-бот">${OCTO}</span><span class="ibtn" data-go="newChat" aria-label="Новый чат">${I.plus}</span></span></div>
+    <label class="search">${I.search}<input id="listSearch" placeholder="Поиск" value="${esc(app.inputs.listSearch)}" autocomplete="off"></label>
+    ${showStories && !q ? `<div class="stories">${STORIES.map(([n, l, o], i) => `<div class="story" data-act="story" data-i="${i}">${ava(l, 50, o)}${n}</div>`).join("")}</div>` : ""}
+    ${showChips ? `<div class="chips">${["Все", "Личные", "Группы", "Непрочитанные"].map(c => `<span class="chip ${c === f ? "on" : ""}" data-act="listFilter" data-v="${c}">${c}</span>`).join("")}</div>` : ""}
+    <div class="list">${rows.length ? rows.map(([n, l, , , , online, , kind]) => {
+      const p = preview(n), un = app.unread[n] || 0;
+      return `
+      <div class="item ${un ? "unread" : ""}" data-act="open" data-name="${n}" data-l="${l}">${kind === "bot" ? orb(46, true) : ava(l, 46, online)}
+        <div class="meta"><div class="top"><span class="name">${n}</span><span class="time">${p.t}</span></div>
+        <div class="bot"><span class="last">${p.x}</span>${un ? (st.unread === "badge" ? `<span class="badge">${un}</span>` : `<span class="udot"></span>`) : (p.m ? `<span class="checks ${p.m.read === false ? "" : "read"}">${tick(p.m)}</span>` : "")}</div></div>
+      </div>`;
+    }).join("") : `<div class="empty">Ничего не нашлось</div>`}</div>
+  </div>${tabsHtml(0)}`;
+}
+
+// last message of a chat for the list row: text, time and (if mine) the message for its ticks
+function preview(name) {
+  const what = m => m.k === "voice" ? "Голосовое сообщение" : m.k === "photo" ? `Фото · ${m.x}` : m.x;
+  if (name === "Кенты") {
+    const m = app.group[app.group.length - 1];
+    if (m.w === "botcard") return { x: `JT бот: ${m.k === "split" ? "посчитал, кто сколько должен" : m.x}`, t: now() };
+    return { x: `${m.w === "me" ? "Вы" : m.a}: ${m.x}`, t: m.t, m: m.w === "me" ? m : null };
+  }
+  if (name === "JT бот") {
+    const m = app.ai[app.ai.length - 1];
+    if (!m) return { x: "Начни новый чат", t: "" };
+    return { x: m.w === "think" ? "думает…" : m.w === "me" ? `Вы: ${m.x}` : m.x, t: "18:21", m: m.w === "me" ? m : null };
+  }
+  const list = app.chats[name] || [];
+  const m = list[list.length - 1];
+  if (!m) return { x: "Пока пусто", t: "" };
+  return { x: (m.w === "me" ? "Вы: " : m.a ? `${m.a}: ` : "") + what(m), t: m.t, m: m.w === "me" ? m : null };
+}
+
+function msgList(list) {
+  const bars = [6, 12, 18, 10, 20, 14, 8, 16, 22, 12, 6, 14, 18, 9, 13, 7, 11, 5].map(h => `<i style="height:${h}px"></i>`).join("");
+  return list.map((m, i) => {
+    const prev = list[i - 1], next = list[i + 1];
+    const cls = `msg ${m.w} ${!next || next.w !== m.w ? "last" : ""} ${prev && prev.w !== m.w ? "gap" : ""}`;
+    const t = `<span class="t">${m.t}${m.w === "me" ? tick(m) : ""}</span>`;
+    if (m.k === "photo") return `<div class="${cls}" style="padding:6px"><div class="photo" data-act="photo">фото: новые перила</div><div style="padding:0 6px">${m.x}</div>
+      <div style="padding:0 6px"><span class="react ${app.liked ? "liked" : ""}" data-act="like">${I.heart}${app.liked ? 3 : 2}</span><span class="t" style="display:inline;float:right;margin-top:6px">${m.t}</span></div></div>`;
+    if (m.k === "voice") return `<div class="${cls}"><div class="voice"><span class="play" data-act="play">${app.playing ? PAUSE : I.playI}</span><span class="wave ${app.playing ? "playing" : ""}">${bars}</span></div><span class="t">0:37 · ${m.t}${m.w === "me" ? tick(m) : ""}</span></div>`;
+    return `<div class="${cls}">${m.x}${t}</div>`;
+  }).join("");
+}
+
+function chatView() {
+  const [name, l] = app.chatWith;
+  return `<div class="view">
+    <div class="chead">${back("list")}<span data-act="kent" data-name="${name}" style="display:contents">${ava(l, 38, true)}
+      <div class="who"><b>${name}</b><span>${app.typing ? `<em class="typing">печатает…</em>` : "<i></i>в сети"}</span></div></span>
+      <span class="plain" data-act="call" data-cam="0">${I.phone}</span><span class="plain" data-act="call" data-cam="1">${I.video}</span></div>
+    <div class="feed">${msgList(app.chats[name] ||= [])}${app.chats[name].length ? "" : `<div class="empty">Напиши ${name} первым</div>`}</div>
+    </div>
+    <div class="comp"><span class="ibtn" data-act="sheet" data-v="attach">${I.plus}</span>${field("chatInput", "Сообщение")}</div>`;
+}
+
+function kentView() {
+  const [name, l, un, about] = app.kent;
+  return `<div class="view pro scroll">
+    <div class="row-between" style="width:100%">${back("chat")}<span class="plain" data-act="sheet" data-v="kentMore">${I.edit}</span></div>
+    ${ava(l, 92, true)}
+    <div class="nm">${name}</div><div class="un">@${un}</div><div class="ab">${about}</div>
+    <div class="tiles3" style="width:100%;margin-top:12px;text-align:left"><div class="tile"><b>4</b><span>спота</span></div><div class="tile"><b>31</b><span>оценка</span></div><div class="tile"><b>7.8</b><span>средняя</span></div></div>
+    <div class="twoseg" style="width:100%;margin-top:6px"><span class="cta small" data-act="open" data-name="${name}" data-l="${l}">Написать</span><span class="cta small ghost" data-act="call" data-cam="0">Позвонить</span></div>
+    <div class="cardgrp" style="margin-top:8px">
+      <div data-act="pinGo" data-i="0"><i>${I.map}</i><span>Ступени у ДК</span><em>часто тут</em></div>
+      <div data-act="pinGo" data-i="4"><i>${I.map}</i><span>Скейтпарк</span><em>2 дня назад</em></div>
+    </div>
+  </div>`;
+}
+
+function callView() {
+  const [name, l] = app.callWith;
+  const t = app.tg;
+  return `<div class="view call">
+    <div style="margin-top:70px">${ava(l, 110, false)}</div>
+    <b style="font-size:24px;margin-top:14px">${name}</b>
+    <span class="note" id="callStatus" style="font-size:14px">${app.callStart ? "00:00" : "Звоним…"}</span>
+    ${t.cam ? `<div class="selfcam">Ты</div>` : ""}
+    <div class="callbtns">
+      <span class="cbtn ${t.mic ? "" : "off"}" data-act="callTog" data-k="mic">${t.mic ? I.mic : MICOFF}<small>Микрофон</small></span>
+      <span class="cbtn ${t.cam ? "on" : ""}" data-act="callTog" data-k="cam">${I.video}<small>Камера</small></span>
+      <span class="cbtn ${t.speaker ? "on" : ""}" data-act="callTog" data-k="speaker">${SPEAK}<small>Динамик</small></span>
+      <span class="cbtn end" data-act="hang">${HANG}<small>Сбросить</small></span>
+    </div>
+  </div>`;
+}
+
+function storyView() {
+  const [name, l, , text] = STORIES[app.story];
+  return `<div class="view story-v" data-act="storyNext" style="${cov(app.story * 3 + 2)}">
+    <div class="sbars">${STORIES.map((_, i) => `<span><i class="${i < app.story ? "full" : i === app.story ? "run" : ""}"></i></span>`).join("")}</div>
+    <div class="row-between" style="margin-top:6px"><span style="display:flex;align-items:center;gap:8px">${ava(l, 32, false)}<b>${name}</b><span class="note">2 ч</span></span><span class="plain" data-go="list" aria-label="Закрыть">✕</span></div>
+    <div class="stext">${text}</div>
+    <div class="row-between" style="margin-top:auto;margin-bottom:30px"><span class="cta small ghost" style="flex:1" data-act="open" data-name="${name}" data-l="${l}">Ответить ${name}</span></div>
+  </div>`;
+}
+
+function newChatView() {
+  const q = (app.inputs.kentSearch || "").toLowerCase();
+  const n = app.picked.length;
+  return `<div class="view" style="gap:10px">
+    <div class="row-between">${back("list")}<b>Новый чат</b><span style="width:28px"></span></div>
+    <label class="search">${I.search}<input id="kentSearch" placeholder="Найти кента" value="${esc(app.inputs.kentSearch)}" autocomplete="off"></label>
+    ${n > 1 ? inp("groupName", "Название группы", "Например, Катка в субботу", "") : ""}
+    <div class="list">${KENTS.filter(k => !q || k[0].toLowerCase().includes(q) || k[2].includes(q)).map(([name, l, un]) => `
+      <div class="item" data-act="pick" data-name="${name}">${ava(l, 42, false)}<div class="meta"><span class="name">${name}</span><span class="last">@${un}</span></div>
+      <span class="check ${app.picked.includes(name) ? "on" : ""}">${CHECK}</span></div>`).join("")}</div>
+    <span class="cta ${n ? "" : "off"}" data-act="createChat">${n > 1 ? `Создать группу · ${n + 1}` : n ? `Написать ${app.picked[0]}` : "Выбери кентов"}</span>
+  </div>`;
+}
+
+function profileView() {
+  const m = app.me;
+  return `<div class="view pro scroll">
+    <div class="row-between" style="width:100%"><span style="width:28px"></span><span class="plain" data-go="editProfile" aria-label="Изменить">${I.edit}</span></div>
+    <span data-go="editProfile">${ava(m.name[0].toUpperCase(), 92, false, AVA_COLORS[m.color])}</span>
+    <div class="nm">${esc(m.name)}</div>
+    <div class="un">@${esc(m.username)}</div>
+    <div class="ab">${esc(m.about) || "Пусто"}</div>
+    <div class="cardgrp" style="margin-top:14px">
+      <div data-go="map"><i>${I.map}</i><span>Мои споты</span><em>${SPOTS.length}</em></div>
+      <div data-go="mine"><i>${I.star}</i><span>Мои оценки</span><em>48</em></div>
+    </div>
+    <div class="cardgrp">
+      ${togRow("notif", I.bell, "Уведомления")}
+      <div data-go="privacy"><i>${I.lock}</i><span>Конфиденциальность</span><em>›</em></div>
+      <div data-go="appearance"><i>${I.edit}</i><span>Оформление</span><em>${opt("pal", st.pal)[1]} ›</em></div>
+    </div>
+    <span class="logout" data-act="sheet" data-v="logout">Выйти</span>
+  </div>${tabsHtml(3)}`;
+}
+
+function editProfileView() {
+  const m = app.me;
+  const un = (app.inputs.epUser ?? m.username).trim().toLowerCase();
+  const taken = KENTS.some(k => k[2] === un);
+  const bad = !/^[a-z0-9_]{3,20}$/.test(un);
+  const name = (app.inputs.epName ?? m.name).trim();
+  return `<div class="view" style="gap:10px">
+    <div class="row-between">${back("profile")}<b>Профиль</b><span style="width:28px"></span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <span data-act="avaColor">${ava((name || "?")[0].toUpperCase(), 84, false, AVA_COLORS[m.color])}</span>
+      <span class="note" data-act="avaColor">Сменить фон (фото выбирается из галереи)</span></div>
+    ${inp("epName", "Имя · обязательно", "Как тебя видят кенты", m.name)}
+    ${inp("epUser", "Юзернейм · обязательно, уникальный", "только a–z, 0–9 и _", m.username)}
+    <span class="note ${taken || bad ? "warn" : "ok"}">${bad ? "3–20 символов: латиница, цифры, _" : taken ? `@${un} уже занят` : `@${un} свободен`}</span>
+    ${inp("epAbout", "О себе · необязательно", "Пара слов", m.about)}
+    <span class="cta ${taken || bad || !name ? "off" : ""}" data-act="saveProfile">Сохранить</span>
+  </div>`;
+}
+
+function privacyView() {
+  return `<div class="view scroll" style="gap:10px">
+    <div class="row-between">${back("profile")}<b>Конфиденциальность</b><span style="width:28px"></span></div>
+    <span class="lbl2">Кто видит мой профиль</span>
+    <div class="segs">${["Все кенты", "Только друзья", "Никто"].map(v => `<span class="sg ${app.profileVis === v ? "on" : ""}" data-act="profileVis" data-v="${v}">${v}</span>`).join("")}</div>
+    <div class="cardgrp">
+      ${togRow("online", I.user, "Показывать «в сети»")}
+      ${togRow("read", CHECK, "Галочки «прочитано»", "Выключишь — и сам не увидишь чужие")}
+      ${togRow("geo", I.map, "Я на карте", "Кенты видят, на каком ты споте")}
+      ${togRow("ratings", I.star, "Мои оценки видны кентам")}
+    </div>
+    <div class="cardgrp"><div data-act="sheet" data-v="blocked"><i>${I.lock}</i><span>Заблокированные</span><em>0 ›</em></div></div>
+  </div>`;
+}
+
+function appearanceView() {
+  return `<div class="view scroll" style="gap:10px">
+    <div class="row-between">${back("profile")}<b>Оформление</b><span style="width:28px"></span></div>
+    <span class="lbl2">Тема</span>
+    <div class="segs">${GROUPS.find(g => g[0] === "pal")[3].map(([id, l]) => `<span class="sg ${st.pal === id ? "on" : ""}" data-set="pal" data-v="${id}">${l}</span>`).join("")}</div>
+    <span class="lbl2">Акцент</span>
+    <div class="swrow">${GROUPS.find(g => g[0] === "acc")[3].map(([id, l, c]) => `<span class="swp ${st.acc === id ? "on" : ""}" data-set="acc" data-v="${id}" style="background:${c[0]}" title="${l}"></span>`).join("")}</div>
+    <span class="lbl2">Свои сообщения</span>
+    <div class="segs">${GROUPS.find(g => g[0] === "bub")[3].map(([id, l]) => `<span class="sg ${st.bub === id ? "on" : ""}" data-set="bub" data-v="${id}">${l}</span>`).join("")}</div>
+    <span class="lbl2">Фон</span>
+    <div class="segs">${GROUPS.find(g => g[0] === "bg")[3].map(([id, l]) => `<span class="sg ${st.bg === id ? "on" : ""}" data-set="bg" data-v="${id}">${l}</span>`).join("")}</div>
+    <div class="feed" style="flex:none;padding:12px;background:var(--s-1);border-radius:18px;overflow:visible">
+      <div class="msg them last">Как тебе новая тема?</div><div class="msg me gap last">Огонь</div></div>
+  </div>`;
+}
+
+// stylized map: roads, park and river drawn in SVG
+const MAP_SVG = `<svg viewBox="0 0 320 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect x="150" y="250" width="140" height="110" rx="18" class="park"/>
+      <rect x="20" y="430" width="120" height="90" rx="18" class="park"/>
+      <path d="M-20 560 C 80 520, 140 610, 340 560" class="river"/>
+      <path d="M-10 140 L 330 220 M 40 -10 L 120 720 M 190 -10 L 230 720 M -10 380 L 330 330 M -10 470 L 330 520" class="road"/>
+      <path d="M -10 290 L 330 270 M 290 -10 L 300 720 M -10 640 L 330 600" class="road thin"/>
+    </svg>`;
+
+// placeholder cover: calm gradient tinted by the accent, varies by index
+const cov = i => `background:linear-gradient(135deg, var(--s-2), color-mix(in srgb, var(--s-acc) ${12 + (i * 17) % 50}%, var(--s-2)))`;
+const STAR_F = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+
+const musicChips = active => `<div class="chips">${[["Оцениваем", "music"], ["Топ кентов", "top"], ["Мои оценки", "mine"]]
+  .map(([c, go], i) => `<span class="chip ${i === active ? "on" : ""}" data-go="${go}">${c}</span>`).join("")}</div>`;
+
+const critKey = () => st.rateMode === "simple" ? "simple" : st.rateKind;
+const score = (crit, vals) => {
+  let s = 0, w = 0;
+  crit.forEach((c, i) => { if (vals[i] != null) { s += vals[i] * c[2]; w += c[2]; } });
+  return w ? (s / w).toFixed(1) : "—";
+};
+const kentVal = (v, i) => Math.min(10, Math.max(1, v - 0.6 + (i % 4) * 0.4)).toFixed(1);
+
+function rateView() {
+  const album = st.rateKind === "album", simple = st.rateMode === "simple", shared = st.rateFor === "shared";
+  const key = critKey(), crit = CRIT[key], vals = app.vals[key];
+  const kent = score(crit, CRIT[key].map((c, i) => c[1] == null ? null : +kentVal(c[1], i)));
+  const rows = crit.map(([n], i) => {
+    const v = vals[i];
+    return `<div class="crow"><span class="cn ${v == null ? "skip" : ""}" data-act="skip" data-i="${i}">${n}</span>
+    <span class="slider" data-slide="${i}">${v == null ? "" : `<i style="width:${v * 10}%"></i><b style="left:${v * 10}%"></b>`}</span>
+    <span class="cv">${v ?? "—"}</span>${shared ? `<span class="ck">${crit[i][1] == null ? "—" : kentVal(crit[i][1], i)}</span>` : ""}</div>`;
+  }).join("");
+  return `<div class="view" style="gap:9px">
+    <div class="row-between">${back("music")}<b data-act="kind">${album ? "Оценка альбома" : "Оценка трека"} ▾</b><span class="plain" data-act="editRated" aria-label="Изменить данные">${I.edit}</span></div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="cover" style="width:56px;height:56px;${cov(2)}"></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><b>${esc(app.rateTitle) || "[Название]"}</b><span class="note">${esc(app.rateArtist) || "[Артист]"} · ${album ? "альбом" : "сингл"}</span></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.1"><span class="score">${score(crit, vals)}</span><span class="note">${shared ? `кенты ${kent}` : "мой итог"}</span></div>
+    </div>
+    <div class="twoseg">
+      <div class="segs"><span class="sg ${shared ? "" : "on"}" data-set="rateFor" data-v="me">Для себя</span><span class="sg ${shared ? "on" : ""}" data-set="rateFor" data-v="shared">Для кентов</span></div>
+      <div class="segs"><span class="sg ${simple ? "" : "on"}" data-set="rateMode" data-v="full">10</span><span class="sg ${simple ? "on" : ""}" data-set="rateMode" data-v="simple">4</span></div>
+    </div>
+    <span class="note">${shared ? "Уйдёт в общий топ, кенты увидят твои баллы." : "Видишь только ты, в общий топ не идёт."} Тап по названию — пропустить.</span>
+    <div class="rows ${simple ? "simple" : ""} ${shared ? "shared" : ""}">
+      ${shared ? `<div class="crow head"><span></span><span></span><span class="cv">ты</span><span class="ck">кенты</span></div>` : ""}${rows}</div>
+    <label class="inp"><span>Комментарий к ${album ? "альбому" : "треку"}</span><input id="rateComment" placeholder="${album ? "Цельный, без проходняка" : "Бит качает, припев залипает"}" value="${esc(app.inputs.rateComment)}"></label>
+    <span class="cta" data-act="rateSave">${shared ? "Отправить кентам" : "Сохранить"}</span>
+  </div>`;
+}
+
+function addView() {
+  const album = app.addKind === "album";
+  const title = (app.inputs.addTitle ?? app.rateTitle).trim();
+  return `<div class="view" style="gap:10px">
+    <div class="row-between">${back(app.addEdit ? "rate" : "music")}<b>${app.addEdit ? "Изменить" : "Добавить"}</b><span style="width:28px"></span></div>
+    <div class="segs">${[["track", "Трек"], ["album", "Альбом"]].map(([id, l]) => `<span class="sg ${app.addKind === id ? "on" : ""}" data-act="addKind" data-v="${id}">${l}</span>`).join("")}</div>
+    <div style="display:flex;gap:12px;align-items:center"><span class="addph" style="width:72px;height:72px;border-radius:16px" data-act="toast" data-msg="Тут откроется галерея">${CAM}</span>
+      <span class="note">Обложка по желанию.<br>Без неё будет заглушка.</span></div>
+    ${inp("addTitle", "Название · обязательно", album ? "Название альбома" : "Название трека", app.rateTitle)}
+    ${inp("addArtist", "Артист", "Кто исполняет", app.rateArtist)}
+    ${inp("addYear", "Год", "2026", "")}
+    ${app.addEdit
+      ? `<span class="cta ${title ? "" : "off"}" data-act="addRate">Сохранить</span>`
+      : `<div class="twoseg" style="margin-top:auto;margin-bottom:26px"><span class="cta small ghost ${title ? "" : "off"}" data-act="addQueue">В очередь</span><span class="cta small ${title ? "" : "off"}" data-act="addRate">Оценить сейчас</span></div>`}
+  </div>`;
+}
+
+function spotView() {
+  const types = ["Перила", "Ступени", "Рампа", "Дроп", "Бордюр", "Парк", "Мануал-пад"];
+  const sp = app.spot;
+  return `<div class="view" style="gap:8px">
+    <div class="row-between">${back("map")}<b>Новый спот</b><span style="width:28px"></span></div>
+    <div class="minimap" data-act="movePin"><div class="mapbg">${MAP_SVG}</div>
+      <span class="pin sel" style="left:${sp.px}%;top:${sp.py}%">${I.map}</span>
+      <span class="chip floaty" style="position:absolute;left:10px;bottom:10px;color:var(--s-ink);pointer-events:none">Тапни, где спот</span></div>
+    ${inp("spotName", "Название", "Например, Ступени у ДК", "")}
+    <span class="lbl2">Что там есть</span>
+    <div class="chips multi">${types.map(t => `<span class="chip ${sp.types.includes(t) ? "on" : ""}" data-act="spotType" data-v="${t}">${t}</span>`).join("")}</div>
+    <span class="lbl2">Покрытие</span>
+    <div class="chips">${["Гладкое", "Нормальное", "Убитое"].map(c => `<span class="chip ${sp.cover === c ? "on" : ""}" data-act="spotCover" data-v="${c}">${c}</span>`).join("")}</div>
+    <span class="lbl2">Фото</span>
+    <div class="photos">${Array.from({ length: sp.photos }, (_, i) => `<span style="${cov(i * 3 + 1)}" data-act="rmPhoto" title="Убрать"></span>`).join("")}${sp.photos < 4 ? `<span class="addph" data-act="addPhoto">${CAM}</span>` : ""}</div>
+    <span class="lbl2">Кто видит</span>
+    <div class="segs">${["Все кенты", "Только я"].map(v => `<span class="sg ${sp.vis === v ? "on" : ""}" data-act="spotVis" data-v="${v}">${v}</span>`).join("")}</div>
+    <span class="cta" data-act="spotSave">Добавить спот</span>
+  </div>`;
+}
+
+function topView() {
+  const what = app.topKind === "Треки" ? "[Трек]" : "[Альбом]";
+  const pod = [[2, "8.9", 3], [1, "9.3", 0], [3, "8.7", 5]];
+  const rest = [["8.4", 5, "Рома"], ["8.1", 4, "Дэн"], ["7.9", 5, "Макс"], ["7.6", 3, "Лёха"]];
+  return `<div class="view scroll">
+    <div class="row-between"><span class="title">Музыка</span><span class="ibtn" data-act="add">${I.plus}</span></div>
+    ${musicChips(1)}
+    <div class="row-between"><div class="segs" style="flex:1">${["Треки", "Альбомы"].map(k => `<span class="sg ${app.topKind === k ? "on" : ""}" data-act="topKind" data-v="${k}">${k}</span>`).join("")}</div>
+      <span class="note" style="white-space:nowrap" data-act="period">${["За неделю", "За месяц", "За всё время"][app.period]} ▾</span></div>
+    <div class="podium">${pod.map(([place, sc, ci]) => `<div class="pod" style="padding-top:${place === 1 ? 0 : 22}px" data-act="rateShared">
+      <div class="cover" style="${cov(ci + app.period)}"><span class="medal">${place}</span></div>
+      <b style="font-size:${place === 1 ? 20 : 16}px;color:${place === 1 ? "var(--s-acc)" : "inherit"}">${sc}</b><span class="pl">${what} · [Артист]</span></div>`).join("")}</div>
+    <div class="now" style="flex-direction:row;align-items:center;gap:12px;padding:10px 12px" data-act="rateShared">
+      <div class="cover" style="width:42px;height:42px;${cov(8)}"></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="note">Самый спорный</span><b>${what}</b><span class="note">Рома 10 · Дэн 3</span></div>
+      <b style="font-size:18px">6.4</b></div>
+    <div class="list">${rest.map(([sc, n, who], i) => `
+      <div class="item" data-act="rateShared"><span class="rank">${i + 4}</span><div class="cover" style="width:42px;height:42px;${cov(i + 6 + app.period)}"></div>
+        <div class="meta"><span class="name">${what}</span><span class="last">Скинул ${who} · оценили ${n}</span></div><b>${sc}</b></div>`).join("")}</div>
+  </div>${tabsHtml(2)}`;
+}
+
+function mineView() {
+  let scores = ["9.4", "9.1", "8.8", "8.5", "8.2", "7.9", "7.6", "7.3", "7.0", "6.8", "6.1", "5.4"];
+  if (app.mineByDate) scores = [scores[4], scores[0], scores[9], scores[2], scores[7], scores[1], scores[11], scores[5], scores[3], scores[8], scores[6], scores[10]];
+  const shift = ["Треки", "Альбомы", "Артисты"].indexOf(app.mineKind) * 4;
+  return `<div class="view scroll">
+    <div class="row-between"><span class="title">Музыка</span><span class="ibtn" data-act="add">${I.plus}</span></div>
+    ${musicChips(2)}
+    <div class="tiles3"><div class="tile"><b>48</b><span>оценено</span></div><div class="tile"><b>7.4</b><span>моя средняя</span></div><div class="tile"><b>6</b><span>дней подряд</span></div></div>
+    <div class="row-between"><div class="segs" style="flex:1">${["Треки", "Альбомы", "Артисты"].map(k => `<span class="sg ${app.mineKind === k ? "on" : ""}" data-act="mineKind" data-v="${k}">${k}</span>`).join("")}</div>
+      <span class="note" style="white-space:nowrap" data-act="mineSort">${app.mineByDate ? "По дате" : "По оценке"} ▾</span></div>
+    <div class="grid3">${scores.map((sc, i) => `<div class="gcell" style="${cov(i + shift)}" data-act="rateMine">${+sc >= 9 ? `<span class="st">${STAR_F}</span>` : ""}<span class="sc">${sc}</span></div>`).join("")}</div>
+  </div>${tabsHtml(2)}`;
+}
+
+const SPARK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/><path d="M19 15c.3 2 1 2.7 3 3-2 .3-2.7 1-3 3-.3-2-1-2.7-3-3 2-.3 2.7-1 3-3z" opacity=".7"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+const SUGG = ["Итог дня", "Найди трек", "Где покатать", "Собери всех"];
+
+function aiComposer(chipsOn) {
+  return `<div class="comp" style="flex-direction:column;align-items:stretch;gap:8px">
+    ${chipsOn ? `<div class="chips">${SUGG.map(s => `<span class="chip" data-act="ask" data-v="${s}">${s}</span>`).join("")}</div>` : ""}
+    <div style="display:flex;gap:8px;align-items:center"><span class="ibtn" data-act="sheet" data-v="attach">${I.plus}</span>
+      ${field("aiInput", "Спроси бота…", "aifield")}</div></div>`;
+}
+
+function aiCard(card, i) {
+  const sent = app.sent[i];
+  if (card === "meet") return `<div class="acard"><div class="row-between"><b>Ступени у ДК</b><span class="note">1,2 км</span></div>
+    <span class="note">Сегодня, 19:00 · идут Рома, Дэн</span>
+    <div style="display:flex;gap:6px;margin-top:4px"><span class="aibtn ${sent ? "" : "on"}" data-act="sendCard" data-i="${i}">${sent ? "Отправлено ✓" : "Кинуть в «Кенты»"}</span><span class="aibtn" data-act="pinGo" data-i="0">На карте</span></div></div>`;
+  if (card === "track") return `<div class="acard" style="flex-direction:row;align-items:center;gap:10px"><div class="cover" style="width:44px;height:44px;${cov(0)}"></div>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column"><b>[Трек]</b><span class="note">[Артист] · кенты 9.3</span></div>
+    <span class="aibtn on" data-act="rateShared">Оценить</span></div>`;
+  if (card === "spots") return `<div class="acard"><b>Рядом с тобой</b><span class="note" data-act="pinGo" data-i="3">Школа №12 · 0,8 км · пусто ›</span><span class="note" data-act="pinGo" data-i="0">Ступени у ДК · 1,2 км · там Рома и Дэн ›</span>
+    <div style="display:flex;gap:6px;margin-top:4px"><span class="aibtn on" data-go="map">Открыть карту</span></div></div>`;
+  return "";
+}
+
+function aiFeed() {
+  return app.ai.map((m, i) => {
+    if (m.w === "me") return `<div class="msg me last ${i ? "gap" : ""}">${m.x}<span class="t">${tick(m)}</span></div>`;
+    if (m.w === "think") return `<div class="aiblock"><span class="thinking">${SPARK}<span>${m.x}</span></span></div>`;
+    return `<div class="aiblock">${m.trail ? `<div class="aitrail">${m.trail.map(t => `<span class="tool">${CHECK}${t}</span>`).join("")}</div>` : ""}<p>${m.x}</p>${m.card ? aiCard(m.card, i) : ""}</div>`;
+  }).join("");
+}
+
+function groupFeed() {
+  const sums = app.equal ? ["400", "400", "400"] : ["450", "450", "300"];
+  return app.group.map((m, i) => {
+    const prev = app.group[i - 1];
+    const gap = prev && prev.w !== m.w ? "gap" : "";
+    if (m.w === "botcard") {
+      const body = m.k === "split"
+        ? `<div class="aitrail"><span class="tool">${CHECK}прочитал чат за вечер</span></div>
+           <div class="split">${["Рома", "Дэн", "Макс"].map((n, j) => `<div><span>${n}</span><b>${sums[j]} ₽</b></div>`).join("")}</div>
+           <div style="display:flex;gap:6px"><span class="aibtn ${app.remind ? "" : "on"}" data-act="remind">${app.remind ? "Напомню завтра ✓" : "Напомнить завтра"}</span><span class="aibtn" data-act="equal">${app.equal ? "Как было" : "Поровну"}</span></div>`
+        : `<p style="margin:0">${m.x}</p>`;
+      return `<div class="aicard ${gap}"><div class="aihead">${orb(26)}<b>JT бот</b><span class="note">ответ для всех</span></div>${body}</div>`;
+    }
+    const x = m.x.replace(/@бот/g, '<span class="mention">@бот</span>');
+    return `<div class="msg ${m.w} last ${gap}">${x}<span class="t">${m.t}${m.w === "me" ? tick(m) : ""}</span></div>`;
+  }).join("");
+}
+
+function aiView() {
+  if (st.aiMode === "group") {
+    return `<div class="view">
+      <div class="chead">${back("list")}<span data-act="sheet" data-v="members" style="display:contents">${ava("К", 38, false)}
+        <div class="who"><b>Кенты</b><span>5 участников · бот в чате</span></div></span><span class="plain" data-act="call" data-cam="1" data-name="Кенты" data-l="К">${I.video}</span></div>
+      <div class="feed" style="padding-bottom:84px">${groupFeed()}</div></div>
+      <div class="comp"><span class="ibtn" data-act="sheet" data-v="attach">${I.plus}</span>${field("groupInput", "@бот — позвать ИИ")}</div>`;
+  }
+  if (st.aiMode === "empty") {
+    const cards = [[I.chat, "Итог дня", "Что было в «Кентах», пока ты спал"], [I.map, "Где покатать", "Ближайшие споты и кто там сейчас"],
+      [I.music, "Найди трек", "Напой или опиши, найду и скину"], [I.user, "Собери всех", "Сбор с местом, временем и «иду / не иду»"]];
+    return `<div class="view" style="align-items:center;text-align:center">
+      <div class="row-between" style="width:100%">${back("list")}<span class="note">Claude</span><span style="width:28px"></span></div>
+      <div style="margin-top:22px">${orb(84)}</div>
+      <b style="font-size:20px;margin-top:6px">Йо, я JT бот</b>
+      <span class="note" style="font-size:13px;max-width:28ch">Вижу ваши чаты, споты и оценки. Спрашивай что угодно.</span>
+      <div class="sugg">${cards.map(([ic, t, d]) => `<div data-act="ask" data-v="${t}"><i>${ic}</i><b>${t}</b><span>${d}</span></div>`).join("")}</div>
+    </div>${aiComposer(false)}`;
+  }
+  const busy = app.ai.some(m => m.w === "think");
+  return `<div class="view">
+    <div class="chead">${back("list")}${orb(38)}
+      <div class="who"><b>JT бот</b><span>${busy ? `<em class="typing">думает…</em>` : "<i></i>Claude · отвечает сразу"}</span></div><span class="plain" data-act="newAi" aria-label="Новый чат">${I.edit}</span></div>
+    <div class="feed" style="padding-bottom:124px;gap:8px">${aiFeed()}</div>
+  </div>${aiComposer(true)}`;
+}
+
+function mapView() {
+  const sp = SPOTS[app.pin] || SPOTS[0];
+  const f = app.mapFilter, q = (app.inputs.mapSearch || "").toLowerCase();
+  const hit = s => (f === "Все" || s.types.includes(f)) && (!q || s.name.toLowerCase().includes(q));
+  return `<div class="mapbg">${MAP_SVG}
+    ${SPOTS.map((s, i) => `<span class="pin ${i === app.pin ? "sel" : ""} ${hit(s) ? "" : "dim"}" style="left:${s.x}px;top:${s.y}px" data-act="pin" data-i="${i}">${I.map}</span>`).join("")}
+    <span class="me-dot" style="left:150px;top:300px"></span>
+  </div>
+  <div class="view" style="pointer-events:none">
+    <label class="search floaty" style="pointer-events:auto">${I.search}<input id="mapSearch" placeholder="Найти спот" value="${esc(app.inputs.mapSearch)}" autocomplete="off"></label>
+    <div class="chips" style="pointer-events:auto">${["Все", "Перила", "Ступени", "Рампы", "Парки"].map(c => `<span class="chip ${c === f ? "on" : "floaty"}" data-act="mapFilter" data-v="${c}">${c}</span>`).join("")}</div>
+  </div>
+  <span class="fab" style="bottom:316px" aria-label="Добавить спот" data-go="spot">${I.plus}</span>
+  <div class="sheet">
+    <div class="photo" style="width:100%;height:96px;margin:0;${cov(app.pin * 2 + 1)}" data-act="photo">фото спота</div>
+    <div class="row-between" style="margin-top:10px"><b style="font-size:16px">${sp.name}</b><span class="time">${sp.km}</span></div>
+    <div style="font-size:12px;color:var(--s-mut)">${sp.desc}</div>
+    <div class="row-between" style="margin-top:10px">
+      <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--s-mut)">${sp.who.length ? `<span class="stack">${sp.who.map(w => ava(w, 26, false)).join("")}</span>Сейчас катают ${sp.who.length}` : "Сейчас никого"}</span>
+      <span class="badge" style="height:30px;border-radius:15px;padding:0 14px;font-size:12px" data-act="toast" data-msg="Отправка в чат будет в приложении">В чат</span>
+    </div>
+  </div>
+  ${tabsHtml(1)}`;
+}
+
+function musicView() {
+  const crit = [["Цельность", 8], ["Концепция", 7], ["Порядок", 8], ["Без прох.", 6], ["Звук", 9], ["Атмосфера", 9], ["Пики", 9], ["Реиграб.", 8], ["Оригин.", 7], ["Обложка", 8]];
+  const top = [["[Трек]", "[Артист]", "9.1"], ["[Трек]", "[Артист]", "8.7"], ["[Трек]", "[Артист]", "8.4"], ["[Трек]", "[Артист]", "7.9"]];
+  return `<div class="view scroll">
+    <div class="row-between"><span class="title">Музыка</span><span class="ibtn" data-act="add">${I.plus}</span></div>
+    ${musicChips(0)}
+    <div class="now">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="cover" style="width:64px;height:64px"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <span style="font-size:11px;color:var(--s-mut)">Скинул Дэн · альбом</span>
+          <b style="font-size:16px">[Название альбома]</b>
+          <span style="font-size:12px;color:var(--s-mut)">[Артист]</span>
+        </div>
+        <span class="score">8.4</span>
+      </div>
+      <div class="crit">${crit.map(([n, v]) => `<div><span>${n}</span><span class="bar"><i style="width:${v * 10}%"></i></span><b>${v}</b></div>`).join("")}</div>
+      <div class="cmt">«Цельный, ни одного проходняка» — Дэн</div>
+      <div class="row-between">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--s-mut)"><span class="stack">${ava("Р", 24, false)}${ava("Д", 24, false)}${ava("М", 24, false)}</span>Оценили 3 из 5</span>
+        <span class="badge" style="height:30px;border-radius:15px;padding:0 14px;font-size:12px" data-act="rateAlbum">Оценить</span>
+      </div>
+    </div>
+    <div class="section">Топ компании</div>
+    <div class="list">${top.map(([t, a, sc], i) => `
+      <div class="item" data-act="rateShared"><span class="rank">${i + 1}</span><div class="cover" style="width:42px;height:42px"></div>
+        <div class="meta"><span class="name">${t}</span><span class="last">${a}</span></div><b>${sc}</b></div>`).join("")}</div>
+  </div>${tabsHtml(2)}`;
+}
+
+// bottom sheets opened over any screen
+function sheetHtml() {
+  const S = {
+    attach: ["Прикрепить", [[CAM, "Фото", "toast", "Тут откроется галерея"], [I.video, "Видео", "toast", "Тут откроется галерея"], [I.map, "Спот", "go", "map"],
+      [I.music, "Трек", "go", "music"], [I.chat, "Опрос", "toast", "Конструктор опроса"], [I.user, "Сбор", "ask", "Собери всех"]]],
+    members: ["Кенты · 5", KENTS.map(([n, l]) => [l, n, "kent", n])],
+    kentMore: ["Ещё", [[I.bell, "Без звука", "toast", "Уведомления от кента выключены"], [I.lock, "Заблокировать", "toast", "Кент заблокирован"]]],
+    blocked: ["Заблокированные", []],
+    logout: ["Точно выйти?", [[I.back, "Выйти", "toast", "В демо выйти нельзя"], [CHECK, "Остаться", "close", ""]]],
+  };
+  const [title, items] = S[app.sheet] || ["", []];
+  return `<div class="ovl ${app.sheetNew ? "fresh" : ""}" data-act="close"><div class="bsheet" data-act="noop"><span class="grab"></span><b>${title}</b>
+    ${items.length ? `<div class="sgrid ${app.sheet === "members" ? "rows1" : ""}">${items.map(([ic, l, a, v]) =>
+      `<span data-act="sheetPick" data-a="${a}" data-v="${v}"><i>${ic.length < 3 ? ava(ic, 34, false) : ic}</i>${l}</span>`).join("")}</div>` : `<span class="note">Пока никого</span>`}
+  </div></div>`;
+}
+
+/* ===== navigation with slide animation ===== */
+const PARENT = { chat: "list", ai: "list", story: "list", newChat: "list", kent: "chat", call: "chat", spot: "map", rate: "music", add: "music",
+  privacy: "profile", editProfile: "profile", appearance: "profile" };
+const TAB_POS = { list: 0, map: 10, music: 20, top: 21, mine: 22, profile: 30 };
+const depth = s => PARENT[s] ? depth(PARENT[s]) + 1 : 0;
+function direction(from, to) {
+  if (from === to) return null;
+  const MUSIC = ["music", "top", "mine"];
+  if (MUSIC.includes(from) && MUSIC.includes(to)) return null;
+  const a = depth(from), b = depth(to);
+  if (a === 0 && b === 0) return TAB_POS[to] > TAB_POS[from] ? "right" : "left";
+  if (b > a) return "push";
+  if (b < a) return "pop";
+  return "fade";
+}
+
+function render() {
+  const s = $("scr");
+  // keep focus and caret in a phone input across re-renders
+  const focused = document.activeElement && s.contains(document.activeElement) ? document.activeElement.id : null;
+  const [acc, on] = opt("acc", st.acc)[2];
+  Object.assign(s.dataset, { pal: st.pal, tab: st.tab, tbs: st.tbs, cards: st.cards, bub: st.bub, tail: st.tail, bg: st.bg });
+  s.style.setProperty("--s-acc", st.acc === "mono" && st.pal === "light" ? "#111114" : acc);
+  s.style.setProperty("--s-on", st.acc === "mono" && st.pal === "light" ? "#ffffff" : on);
+  s.style.setProperty("--s-r", st.rad + "px");
+  s.style.setProperty("--s-font", `'${st.font}', system-ui, sans-serif`);
+  const VIEWS = { list: listView, chat: chatView, map: mapView, spot: spotView, music: musicView, rate: rateView, top: topView, mine: mineView,
+    ai: aiView, profile: profileView, kent: kentView, call: callView, story: storyView, newChat: newChatView, editProfile: editProfileView,
+    privacy: privacyView, appearance: appearanceView, add: addView };
+
+  const oldLayer = s.querySelector(":scope > .layer");
+  const oldTabs = s.querySelector(":scope > .tabs");
+  s.innerHTML = `<div class="layer">${(VIEWS[st.screen] || listView)()}</div>` + (app.sheet ? sheetHtml() : "") + (app.toast ? `<div class="toast">${app.toast}</div>` : "");
+  app.sheetNew = false;
+  const layer = s.querySelector(".layer");
+  // lift the tab bar out of the screen so it stays put while screens slide
+  const tabs = layer.querySelector(".tabs");
+  if (tabs) s.insertBefore(tabs, layer.nextSibling);
+  layer.querySelectorAll(".feed").forEach(f => { f.scrollTop = f.scrollHeight; });
+  const dir = app.anim;
+  app.anim = null;
+  if (dir && oldLayer && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!tabs && oldTabs) oldLayer.appendChild(oldTabs);
+    s.insertBefore(oldLayer, layer);
+    oldLayer.className = "layer out-" + dir;
+    layer.classList.add("in-" + dir);
+    setTimeout(() => { oldLayer.remove(); layer.classList.remove("in-" + dir); }, 340);
+  }
+  if (focused && $(focused)) { const el = $(focused); el.focus(); el.setSelectionRange?.(el.value.length, el.value.length); }
+
+  GROUPS.forEach(([key, , , opts]) => opts.forEach(([id]) =>
+    $(`o-${key}-${id.replace(/\s/g, "_")}`).setAttribute("aria-pressed", st[key] === id)));
+  $("summary").textContent = summary();
+}
+
+function summary() {
+  return "JustTalk, стиль\n" + GROUPS.filter(g => !PREVIEW_KEYS.includes(g[0]))
+    .map(([key, title]) => `${title}: ${opt(key, st[key])[1]}`).join("\n");
+}
+
+/* ===== phone interactions ===== */
+let toastTimer, storyTimer, callTimer;
+function toast(msg) {
+  app.toast = msg; render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { app.toast = ""; render(); }, 1700);
+}
+function go(screen, extra = {}) {
+  app.anim = direction(st.screen, screen);
+  app.sheet = null;
+  clearTimeout(storyTimer);
+  if (st.screen === "call" && screen !== "call") { clearInterval(callTimer); app.callStart = null; }
+  Object.assign(st, { screen }, extra); save(); render();
+  if (screen === "story") storyTimer = setTimeout(() => ACTS.storyNext(), 4000);
+}
+const later = (ms, fn) => setTimeout(() => { fn(); render(); }, ms);
+
+function botReply(text) {
+  const q = text.toLowerCase();
+  if (q.includes("итог")) return { trail: ["прочитал «Кенты»"], x: "За сегодня в «Кентах» 46 сообщений: договорились на ступени в 19:00, Дэн берёт колонку, Макс потерял ключи от гаража." };
+  if (q.includes("трек") || q.includes("музык")) return { trail: ["открыл топ кентов"], x: "Вот что сейчас выше всех у кентов:", card: "track" };
+  if (q.includes("покат") || q.includes("спот")) return { trail: ["открыл карту", "проверил, кто где"], x: "Ближе всего два места:", card: "spots" };
+  if (q.includes("собер") || q.includes("сбор")) return { trail: ["прочитал «Кенты»"], x: "Сделал сбор, глянь:", card: "meet" };
+  return { x: "Понял. Это демо: живые ответы даст Claude, когда подключим бэкенд." };
+}
+
+function askBot(text) {
+  if (st.screen !== "ai" || st.aiMode !== "dm") { if (st.aiMode !== "dm") app.ai = []; go("ai", { aiMode: "dm" }); }
+  app.ai.push({ w: "me", x: text });
+  const think = { w: "think", x: /трек|музык/i.test(text) ? "Смотрю топ кентов…" : /спот|покат/i.test(text) ? "Смотрю карту…" : "Думаю…" };
+  later(400, () => app.ai.push(think));
+  later(1900, () => { app.ai.splice(app.ai.indexOf(think), 1); app.ai.push({ w: "bot", ...botReply(text) }); });
+  render();
+}
+
+function send(id) {
+  const input = $(id);
+  const text = (input?.value || "").trim();
+  if (!text) return;
+  app.inputs[id] = "";
+  if (id === "chatInput") {
+    const list = app.chats[app.chatWith[0]];
+    list.push({ w: "me", k: "text", x: text, t: now(), read: false });
+    later(900, () => { app.typing = true; list.forEach(m => { if (m.w === "me") m.read = true; }); });
+    later(2300, () => { app.typing = false; list.push({ w: "them", k: "text", x: REPLIES[Math.floor(Math.random() * REPLIES.length)], t: now() }); });
+  } else if (id === "aiInput") {
+    askBot(text); return;
+  } else if (id === "groupInput") {
+    app.group.push({ w: "me", x: text, t: now(), read: false });
+    later(1200, () => app.group.forEach(m => { if (m.w === "me") m.read = true; }));
+    if (/@бот/i.test(text)) later(1500, () => app.group.push({ w: "botcard", x: "Принял, отвечу всем. В демо это заглушка, живой ответ будет от Claude." }));
+  }
+  render();
+}
+
+function startCall(name, l, cam) {
+  app.callWith = [name, l]; app.callFrom = st.screen; app.tg.cam = cam; app.callStart = null;
+  go("call");
+  clearInterval(callTimer);
+  setTimeout(() => {
+    if (st.screen !== "call") return;
+    app.callStart = Date.now();
+    callTimer = setInterval(() => {
+      const el = $("callStatus");
+      if (!el) return clearInterval(callTimer);
+      const sec = Math.floor((Date.now() - app.callStart) / 1000);
+      el.textContent = `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+    }, 500);
+  }, 1500);
+}
+
+const ACTS = {
+  noop: () => {},
+  toast: d => toast(d.msg),
+  close: () => { app.sheet = null; render(); },
+  sheet: d => { app.sheet = d.v; app.sheetNew = true; render(); },
+  sheetPick: d => {
+    app.sheet = null;
+    if (d.a === "go") return go(d.v);
+    if (d.a === "ask") return askBot(d.v);
+    if (d.a === "kent") return ACTS.kent({ name: d.v });
+    if (d.a === "toast") return toast(d.v);
+    render();
+  },
+  listFilter: d => { app.listFilter = d.v; render(); },
+  open: d => {
+    delete app.unread[d.name];
+    if (d.name === "Кенты") return go("ai", { aiMode: "group" });
+    if (d.name === "JT бот") return go("ai", { aiMode: "dm" });
+    app.chatWith = [d.name, d.l]; go("chat");
+  },
+  kent: d => { app.kent = KENTS.find(k => k[0] === d.name) || [d.name, d.name[0], d.name.toLowerCase(), "Кент"]; go("kent"); },
+  story: d => { app.story = +d.i; go("story"); },
+  storyNext: () => {
+    if (st.screen !== "story") return;
+    if (app.story < STORIES.length - 1) { app.story++; app.anim = "fade"; render(); clearTimeout(storyTimer); storyTimer = setTimeout(() => ACTS.storyNext(), 4000); }
+    else go("list");
+  },
+  call: d => {
+    if (d.name) return startCall(d.name, d.l, d.cam === "1");
+    const [name, l] = st.screen === "kent" ? app.kent : app.chatWith;
+    startCall(name, l, d.cam === "1");
+  },
+  callTog: (d, el) => {
+    app.tg[d.k] = !app.tg[d.k];
+    if (d.k === "cam") return render();
+    el.classList.toggle(d.k === "mic" ? "off" : "on", d.k === "mic" ? !app.tg.mic : app.tg[d.k]);
+    if (d.k === "mic") el.firstElementChild.outerHTML = app.tg.mic ? I.mic : MICOFF;
+  },
+  hang: () => go(app.callFrom === "call" ? "list" : app.callFrom),
+  photo: () => toast("Фото откроется на весь экран"),
+  like: () => { app.liked = !app.liked; render(); },
+  play: () => { app.playing = !app.playing; render(); },
+  send: d => send(d.for),
+  ask: d => askBot(d.v),
+  newAi: () => { app.ai = []; go("ai", { aiMode: "empty" }); },
+  sendCard: d => { app.sent[d.i] = true; toast("Сбор отправлен в «Кенты»"); },
+  remind: () => { app.remind = !app.remind; render(); },
+  equal: () => { app.equal = !app.equal; render(); },
+  // switches flip in place so the CSS transition plays
+  tog: (d, el) => { app.tg[d.k] = !app.tg[d.k]; el.querySelector(".tgl").classList.toggle("on", app.tg[d.k]); },
+  profileVis: d => { app.profileVis = d.v; render(); },
+  avaColor: () => { app.me.color = (app.me.color + 1) % AVA_COLORS.length; render(); },
+  saveProfile: (d, el) => {
+    if (el.classList.contains("off")) return;
+    const i = app.inputs;
+    Object.assign(app.me, { name: (i.epName ?? app.me.name).trim(), username: (i.epUser ?? app.me.username).trim().toLowerCase(), about: (i.epAbout ?? app.me.about).trim() });
+    delete i.epName; delete i.epUser; delete i.epAbout;
+    go("profile"); toast("Профиль сохранён");
+  },
+  pick: d => { const p = app.picked; p.includes(d.name) ? p.splice(p.indexOf(d.name), 1) : p.push(d.name); render(); },
+  createChat: (d, el) => {
+    if (el.classList.contains("off")) return;
+    const p = app.picked;
+    if (p.length === 1) { const k = KENTS.find(x => x[0] === p[0]); app.picked = []; app.chatWith = [k[0], k[1]]; return go("chat"); }
+    const name = (app.inputs.groupName || "").trim() || p.join(", ");
+    CHATS.unshift([name, name[0].toUpperCase(), "Группа создана", now(), 0, false, false, "group"]);
+    app.chats[name] = [{ w: "me", k: "text", x: "Создал группу", t: now() }];
+    app.picked = []; app.inputs.groupName = "";
+    go("list"); toast(`Группа «${name}» создана`);
+  },
+  pin: d => { app.pin = +d.i; render(); },
+  pinGo: d => { app.pin = +d.i; go("map"); },
+  mapFilter: d => { app.mapFilter = d.v; render(); },
+  spotType: d => { const t = app.spot.types; t.includes(d.v) ? t.splice(t.indexOf(d.v), 1) : t.push(d.v); render(); },
+  spotCover: d => { app.spot.cover = d.v; render(); },
+  spotVis: d => { app.spot.vis = d.v; render(); },
+  addPhoto: () => { app.spot.photos = Math.min(4, app.spot.photos + 1); render(); },
+  rmPhoto: () => { app.spot.photos = Math.max(0, app.spot.photos - 1); render(); },
+  spotSave: () => {
+    const name = (app.inputs.spotName || "").trim() || "Новый спот";
+    const sp = app.spot;
+    SPOTS.push({ name, x: Math.round(sp.px * 3.2), y: Math.round(sp.py * 4.6) + 40, desc: `${sp.types.join(" · ") || "Без тегов"} · ${sp.cover.toLowerCase()}`, km: "тут", who: [], types: sp.types.slice() });
+    app.pin = SPOTS.length - 1; app.inputs.spotName = "";
+    go("map"); toast(sp.vis === "Только я" ? "Спот сохранён, видишь только ты" : "Спот добавлен, кенты его видят");
+  },
+  kind: () => { st.rateKind = st.rateKind === "track" ? "album" : "track"; save(); render(); },
+  skip: d => { const v = app.vals[critKey()]; v[d.i] = v[d.i] == null ? 5 : null; render(); },
+  rateSave: () => { const shared = st.rateFor === "shared"; app.inputs.rateComment = ""; go(shared ? "top" : "mine"); toast(shared ? "Оценка ушла кентам" : "Оценка сохранена"); },
+  rateShared: () => go("rate", { rateFor: "shared", rateKind: app.topKind === "Альбомы" ? "album" : "track" }),
+  rateAlbum: () => go("rate", { rateFor: "shared", rateKind: "album" }),
+  rateMine: () => go("rate", { rateFor: "me", rateKind: app.mineKind === "Альбомы" ? "album" : "track" }),
+  add: () => { app.addEdit = false; app.addKind = "track"; app.rateTitle = ""; app.rateArtist = ""; ["addTitle", "addArtist", "addYear"].forEach(k => delete app.inputs[k]); go("add"); },
+  editRated: () => { app.addEdit = true; app.addKind = st.rateKind; go("add"); },
+  addKind: d => { app.addKind = d.v; render(); },
+  addQueue: (d, el) => { if (el.classList.contains("off")) return; go("music"); toast("Добавлено в очередь"); },
+  addRate: (d, el) => {
+    if (el.classList.contains("off")) return;
+    app.rateTitle = (app.inputs.addTitle ?? app.rateTitle).trim(); app.rateArtist = (app.inputs.addArtist ?? app.rateArtist).trim();
+    go("rate", { rateKind: app.addKind });
+  },
+  topKind: d => { app.topKind = d.v; render(); },
+  period: () => { app.period = (app.period + 1) % 3; render(); },
+  mineKind: d => { app.mineKind = d.v; render(); },
+  mineSort: () => { app.mineByDate = !app.mineByDate; render(); },
+};
+
+const scr = $("scr");
+scr.addEventListener("click", e => {
+  const mp = e.target.closest("[data-act='movePin']");
+  if (mp && !e.target.closest(".chip")) {
+    const r = mp.getBoundingClientRect();
+    app.spot.px = Math.round((e.clientX - r.left) / r.width * 100);
+    app.spot.py = Math.round((e.clientY - r.top) / r.height * 100) + 8;
+    return render();
+  }
+  const el = e.target.closest("[data-go], [data-act], [data-set]");
+  if (!el || el.dataset.slide) return;
+  if (el.closest(".layer[class*='out-']")) return;
+  if (el.dataset.go) return go(el.dataset.go, el.dataset.mode ? { aiMode: el.dataset.mode } : {});
+  if (el.dataset.set) { st[el.dataset.set] = el.dataset.v; save(); return render(); }
+  ACTS[el.dataset.act]?.(el.dataset, el);
+});
+// typing re-renders only screens whose content depends on the text (search, live checks)
+const LIVE = ["listSearch", "mapSearch", "kentSearch", "epUser", "epName", "addTitle"];
+scr.addEventListener("input", e => { if (!e.target.id) return; app.inputs[e.target.id] = e.target.value; if (LIVE.includes(e.target.id)) render(); });
+scr.addEventListener("keydown", e => { if (e.key === "Enter" && ["chatInput", "aiInput", "groupInput"].includes(e.target.id)) { e.preventDefault(); send(e.target.id); } });
+
+// rating sliders: drag along the track, value snaps to 1..10
+let drag = null;
+function slideTo(x) {
+  const v = Math.min(10, Math.max(1, Math.round((x - drag.left) / drag.width * 10)));
+  const vals = app.vals[critKey()];
+  if (vals[drag.i] !== v) { vals[drag.i] = v; render(); }
+}
+scr.addEventListener("pointerdown", e => {
+  const sl = e.target.closest("[data-slide]");
+  if (!sl) return;
+  const r = sl.getBoundingClientRect();
+  drag = { i: +sl.dataset.slide, left: r.left, width: r.width };
+  e.preventDefault();
+  slideTo(e.clientX);
+});
+window.addEventListener("pointermove", e => { if (drag) slideTo(e.clientX); });
+window.addEventListener("pointerup", () => { drag = null; });
+
+$("copyBtn").addEventListener("click", e => {
+  const btn = e.currentTarget;
+  navigator.clipboard.writeText(summary())
+    .then(() => { btn.textContent = "Скопировано"; setTimeout(() => btn.textContent = "Скопировать итог", 1500); })
+    .catch(() => {
+      const r = document.createRange(); r.selectNodeContents($("summary"));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      btn.textContent = "Выделил, скопируй вручную";
+    });
+});
+
+render();
+</script>
